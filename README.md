@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# F1 Story Engine
 
-## Getting Started
+An interactive F1 web product that connects news → decisions → performance →
+results. See [`SPEC.md`](./SPEC.md) for full product scope and
+[`CLAUDE.md`](./CLAUDE.md) for tech/process conventions.
 
-First, run the development server:
+## Quickstart
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) for the Storyline Hub, or
+[http://localhost:3000/seasons/2026](http://localhost:3000/seasons/2026) for the
+Season Timeline.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Status: v0 (mock data only)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` — Storyline Hub: momentum spotlight + quick story feed
+- `/seasons/[year]` — Season Timeline: horizontal race cards, click for detail
 
-## Learn More
+No backend, no live API calls yet. All data in `/data/mock-*.ts` is fictional —
+see the header comment in each file.
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+/app          — routes (Next.js App Router)
+/components   — shared React components
+/lib          — pure logic (e.g. momentum calculation)
+/data         — mock data for now; real API client lands in Step 6
+/types        — shared TypeScript types
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment variables
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Copy `.env.example` to `.env.local`. Nothing is required for v0 — see the file for
+what's planned for real-data integration.
