@@ -4,16 +4,26 @@
 
 F1 Story Engine is an interactive product that connects **news → decisions →
 performance → results** for a Formula 1 season. Instead of a plain results table, it
-surfaces the *storylines* underneath the numbers — who's trending up, what strategic
+surfaces the _storylines_ underneath the numbers — who's trending up, what strategic
 decision shifted a race, how a season is unfolding — in a format quick enough to scan
 in 10 seconds or narrate over on a short-form video (Instagram/Reels).
+
+## Long-term Product Vision
+
+Build a vibrant, mobile-first F1 community experience rather than a static results
+site. Later vertical slices will add interactive visual storytelling, driver/team
+personalization, community participation, and creator-friendly 9:16 infographic
+and video presentation modes. These are the destination, not requirements for the
+first real-data release.
 
 ## MVP Scope
 
 Two routes, shipped as separate vertical slices:
 
 ### 1. Storyline Hub — `/`
+
 The landing page. Answers "what's the story right now?" at a glance.
+
 - **Momentum Spotlight** (hero): one driver/team currently trending, computed from
   recent race-by-race finishing positions (see Momentum Rule below).
 - **Quick Story feed**: 4–6 short narrative cards (headline + 1–3 sentence blurb),
@@ -21,15 +31,17 @@ The landing page. Answers "what's the story right now?" at a glance.
   linked to a race round.
 
 ### 2. Season Timeline — `/seasons/[year]` (default `2026`)
+
 The drill-down view.
+
 - Horizontal, scrollable row of race cards: round number, race name, date, podium
   (top 3: driver + team).
 - Click a race card → side panel with expanded detail (poleSitter, fastest lap, full
-  podium — mocked for v0).
+  podium for completed races; scheduled date and pending state for upcoming races).
 
-Both routes: dark theme, mobile-responsive, keyboard-navigable, aria-labeled
-interactive elements. No backend, no live API calls in this slice — pure UI over mock
-data.
+Both routes: clean light editorial theme, mobile-responsive, keyboard-navigable, aria-labeled
+interactive elements. v0 shipped over mock data; Step 6 now supplies real race data
+through server-side Jolpica calls with no database or API keys.
 
 ## Momentum Rule (v0)
 
@@ -41,34 +53,49 @@ in average finishing position = improving) is the Momentum Spotlight.
 This is intentionally simple — no weighting, no points, no ML. It's a clear, explain-
 on-camera rule we can refine once real data is wired in.
 
-## Data Model (mock, v0)
+## Data Model
 
 ```ts
-// /data/mock-2026-season.ts
 type Race = {
+  season: number;
   round: number;
   name: string;
   circuit: string;
   country: string;
   date: string; // ISO date
+  startTime: string | null; // ISO timestamp when available
+  status: "completed" | "upcoming";
   podium: { position: 1 | 2 | 3; driver: string; team: string }[];
-  poleSitter: string;
-  fastestLap: string;
+  poleSitter: string | null;
+  fastestLap: string | null;
 };
 
-// /data/mock-momentum.ts
 type DriverForm = {
   driver: string;
   team: string;
   last6Positions: number[]; // race-finish positions, oldest → newest
 };
 
-// /data/mock-stories.ts
+type DriverStanding = {
+  position: number;
+  driver: string;
+  team: string;
+  points: number;
+  wins: number;
+};
+
+type TeamStanding = {
+  position: number;
+  team: string;
+  points: number;
+  wins: number;
+};
+
 type QuickStory = {
   id: string;
   headline: string;
   blurb: string;
-  tag: "Momentum" | "Strategy" | "Drama" | "Standings";
+  tag: "Momentum" | "Strategy" | "Drama" | "Standings" | "Results";
   relatedRound?: number; // links to a Race.round
 };
 ```
@@ -76,12 +103,35 @@ type QuickStory = {
 All mock data is clearly fictional (not real 2026 results/dates) and labeled as such
 in-file, per the "no invented facts presented as real" rule.
 
-## Explicit Non-Goals for MVP
+## Community Paddock v0
 
-- No user accounts or auth
+The first community vertical slice lives at `/community` and validates the social
+interaction model before authentication and persistence are added:
+
+- One shared paddock rather than separate empty team rooms.
+- Favourite-team filters and team-colour identity.
+- Admin/editor prompts plus clearly labelled member hot takes and race chat.
+- Client-local reactions and comments, visibly labelled as a non-persistent demo.
+- Homepage teaser and primary-navigation entry.
+- Mock accounts and discussions are fictional and labelled in-file; fan opinions are
+  never presented as verified news.
+
+Decisions for the persistent slice:
+
+- Real posting requires sign-in; no anonymous posting.
+- Supabase Auth and Postgres are the planned free-tier backend.
+- News posts are initially editor-created and must include a source. Community posts
+  are labelled as discussion or hot takes.
+- Row Level Security, reporting, rate limits, and admin removal are required before
+  persistent user-generated content launches.
+- DMs, media uploads, followers, and complex profiles remain deferred.
+
+## Explicit Non-Goals for the original results MVP
+
+- No user accounts or auth in Community Paddock v0; planned for the persistent slice
 - No live/current race data or polling
 - No infographic image generation or video export (planned for a later slice — data
-  model above is kept clean so it *can* feed an export pipeline later, but no
+  model above is kept clean so it _can_ feed an export pipeline later, but no
   generation work happens now)
 - No predictions/betting angle
 - Single season only (2026), no season switcher yet
@@ -92,16 +142,87 @@ in-file, per the "no invented facts presented as real" rule.
 - Next.js 15 (App Router), TypeScript (strict)
 - Tailwind CSS 4
 - shadcn/ui for primitives (Base UI headless components under the hood)
-- Recharts (reserved for later — standings/trend charts, not needed for this slice)
+- Recharts 3 for interactive driver-form and standings visualizations
 - ESLint + Prettier
 - Deploy target: Vercel (free tier)
 
-## Real Data (post-MVP, Step 6+)
+## Real Data (Step 6)
 
 Planned source: **Jolpica F1 API** (free, no API key, community-maintained successor
 to the retired Ergast API) for race schedules/results/standings. It has no narrative
 layer — "Quick Story" blurbs stay human/editorially written even after real data
 lands; only the factual scaffolding (races, positions, podiums) comes from the API.
+
+Implementation decisions:
+
+- Fetch only on the server because Jolpica requires a custom `User-Agent`.
+- Cache responses for one hour to stay comfortably inside free-tier rate limits.
+- Paginate results at the API maximum of 100 and merge fragments by race round.
+- Show both completed and upcoming races; never present missing results as zeroes.
+- Generate factual recent-result cards from race data for the live Hub. These are
+  not a replacement for future human-authored editorial analysis.
+
+## Broadcast Hub v1
+
+The first post-data visual slice makes the landing page feel like a sports media
+product rather than a plain dashboard:
+
+- Outfit display typography with Geist for body copy.
+- Semantic racing-red, electric-blue, amber, and violet accents.
+- Live cards for championship leader, momentum leader, latest winner, and next race.
+- Season progress and top-five driver standings.
+- Selectable six-race driver-form chart built with Recharts.
+- Responsive hover/selection states with reduced-motion support.
+- Live Drivers/Teams leaderboard switcher using driver and constructor standings.
+- Pure-white canvas with light navigation and crisp white data panels.
+- Flat pastel KPI cards and single-colour story rails; avoid decorative gradients
+  and glows so dense race information stays easy to scan.
+- Use electric blue, violet, amber, and team colours for energy; reserve racing red
+  for a small number of meaningful brand or status accents.
+- Team-coloured standings bars and completed-race timeline accents.
+
+## Race Story v0
+
+The first narrative enrichment slice fills the Season Timeline with a selectable
+story archive for completed races:
+
+- Server-side OpenF1 historical-data adapter with one-hour caching and graceful
+  fallback when enrichment is unavailable.
+- Meeting/session matching by season, race name, country, and date.
+- Up to six high-signal Race Control moments: red flags, Safety Car/VSC periods,
+  penalties, and collision rulings.
+- Podium strategy board showing recorded tyre stints and post-restart pit laps.
+- Factual race-pulse metrics: race distance, disruption count, retirements, and
+  winning margin.
+- Every automated moment is labelled `Race Control`; strategy is labelled as
+  recorded data, not an assessment of whether a call was good or bad.
+- The enriched race card links through its detail drawer to the full story, and the
+  story links to Community Paddock discussion.
+- A horizontally scrollable archive bar and previous/next controls select one
+  completed race at a time. Selection is stored in the shareable `?story={round}`
+  URL and defaults to the latest completed race.
+- Archive links disable Next.js prefetch so opening the page does not silently load
+  every race's enrichment. The selected race automatically scrolls into view.
+- OpenF1 requests are paced below the documented free limit and retry once after a
+  `429`; missing historical tyre compounds are shown as `UNKNOWN` rather than
+  crashing the page.
+
+Free-tier boundary: OpenF1 historical data becomes free outside its live-session
+window, so Race Story v0 is post-race rather than live timing. Strategy mistakes,
+turning-point judgements, and sourced news remain an editorial layer; the app must
+not generate those claims from telemetry alone.
+
+## Car Explorer v0
+
+`/car-explorer` is a lightweight educational slice built from a repo-native,
+conceptual SVG rather than a downloaded 3D model:
+
+- Accessible hotspots identify seven broad car systems and work with pointer or
+  keyboard input.
+- The illustration is explicitly not a real team's technical design.
+- 2026-specific claims are checked against and visibly link to official FIA
+  regulation sources.
+- A licensed 3D model, explode view, and team-specific geometry remain deferred.
 
 ## Constraints
 
