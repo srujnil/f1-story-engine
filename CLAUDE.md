@@ -108,11 +108,27 @@ Small commits, one per meaningful chunk of work.
   normalized to `UNKNOWN` and shown honestly in the strategy board. A second
   `429` is an expected optional-enrichment miss and must fall back quietly; other
   OpenF1 failures remain genuine errors.
-- **Car Explorer v0**: `/car-explorer` uses a repo-native conceptual SVG with
-  accessible hotspots, not an unlicensed or missing GLB. Generic car-part
-  explanations and 2026 rule claims must be checked against, and visibly link to,
-  current official FIA sources. Never present the diagram as a real team's
-  technical design.
+- **Car Explorer v1**: `/car-explorer` upgraded from the SVG diagram to a real
+  rotatable 3D model — "2026 F1 CAR EVO-1" by Abu Saif, CC BY 4.0 via Sketchfab
+  (credited on-page, required by the license). The as-downloaded model was ~48MB /
+  ~5M render vertices across 107 near-anonymous meshes (no per-part names besides
+  "FRONT NOSE" and "floor"); `gltf-transform optimize` (weld/join/simplify/meshopt)
+  cut it to ~570KB / ~740K vertices before committing it to `public/models/`.
+  The optimized asset ships with the app so local and Vercel builds use the same
+  file without external storage. Because the model
+  has no separate part meshes, the 7 interactive hotspots are positioned in fixed
+  3D space (`car-parts.ts`) rather than tied to mesh names, rendered via drei's
+  `<Html>` so they track the model through rotation. Camera is framed from the
+  model's measured bounding box directly rather than an auto-fit helper. Generic
+  car-part explanations and 2026 rule claims must be checked against, and visibly
+  link to, current official FIA sources; never present the model as a real team's
+  actual car.
+- **Known environment gotcha**: a from-scratch `<Canvas>` can render solid black
+  even with a correct scene graph, camera, and no console errors — the WebGL
+  context creation itself can fail silently under contexts/tabs that have
+  accumulated many prior canvases in the same session. Always sanity-check a
+  blank r3f canvas in a **fresh browser tab**, not a long-reused one, before
+  assuming the scene/model/code is broken.
 - **Provenance boundary**: red flags, neutralisations, penalties, collisions, tyre
   stints, and pit laps may be presented as sourced facts. “Strategy mistake,”
   “turning point,” and similar causal judgements require an editor and a source;

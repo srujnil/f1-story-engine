@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# raw downloaded model source (pre-optimization), never needed at runtime
+/2026_f1_car_evo-1/

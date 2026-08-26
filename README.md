@@ -23,8 +23,9 @@ Season Timeline.
   plus a selectable archive of pivotal Race Control events and podium tyre strategy
 - `/community` — shared-paddock prototype with team filters, reactions, and local
   demo comments; interactions are non-persistent until auth and moderation land
-- `/car-explorer` — sourced, conceptual 2026 car-parts explainer with accessible
-  interactive hotspots; it is not a real team's technical design
+- `/car-explorer` — sourced, rotatable 3D car-parts explainer with accessible
+  hotspots and selector controls; the licensed fan-made model is not a real
+  team's technical design
 
 Race data comes from the free Jolpica F1 API and is fetched server-side, paginated,
 and cached for one hour. The files in `/data/mock-*.ts` remain development fixtures

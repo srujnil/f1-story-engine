@@ -212,17 +212,21 @@ window, so Race Story v0 is post-race rather than live timing. Strategy mistakes
 turning-point judgements, and sourced news remain an editorial layer; the app must
 not generate those claims from telemetry alone.
 
-## Car Explorer v0
+## Car Explorer v1
 
-`/car-explorer` is a lightweight educational slice built from a repo-native,
-conceptual SVG rather than a downloaded 3D model:
+`/car-explorer` is an interactive educational slice built around the licensed,
+fan-made “2026 F1 Car EVO-1” model by Abu Saif (CC BY 4.0):
 
-- Accessible hotspots identify seven broad car systems and work with pointer or
-  keyboard input.
-- The illustration is explicitly not a real team's technical design.
-- 2026-specific claims are checked against and visibly link to official FIA
-  regulation sources.
-- A licensed 3D model, explode view, and team-specific geometry remain deferred.
+- The optimized model is bundled with the app so local and deployed builds use
+  the same free-tier-friendly asset without external storage.
+- Users can rotate and zoom the model, then select seven broad car systems through
+  accessible 3D hotspots or keyboard-friendly selector controls.
+- A white studio stage, colour-coded markers, and a compact part detail card keep
+  the experience clear without implying a real team livery.
+- Model attribution, licence, and official FIA regulation sources remain visibly
+  linked in a compact credit strip inside the model stage.
+- The model is explicitly presented as a fan-made concept, never a real team's
+  technical design. An explode view and team-specific geometry remain deferred.
 
 ## Constraints
 
