@@ -6,11 +6,14 @@ import type { Race } from "@/types";
 
 export const mockSeason2026: Race[] = [
   {
+    season: 2026,
     round: 1,
     name: "Grand Prix of Meridian Bay",
     circuit: "Meridian Bay Street Circuit",
     country: "Fictional Country A",
     date: "2026-03-08",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "A. Voss", team: "Meridian Racing" },
       { position: 2, driver: "K. Lindqvist", team: "Solace Motorsport" },
@@ -20,11 +23,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "K. Lindqvist",
   },
   {
+    season: 2026,
     round: 2,
     name: "Desert Sands Grand Prix",
     circuit: "Sands International Raceway",
     country: "Fictional Country B",
     date: "2026-03-22",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "K. Lindqvist", team: "Solace Motorsport" },
       { position: 2, driver: "A. Voss", team: "Meridian Racing" },
@@ -34,11 +40,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "A. Voss",
   },
   {
+    season: 2026,
     round: 3,
     name: "Northshore Grand Prix",
     circuit: "Northshore Circuit",
     country: "Fictional Country C",
     date: "2026-04-05",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "M. Beaumont", team: "Ferro Grand Prix" },
       { position: 2, driver: "A. Voss", team: "Meridian Racing" },
@@ -48,11 +57,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "T. Ishikawa",
   },
   {
+    season: 2026,
     round: 4,
     name: "Grand Prix of Altavista",
     circuit: "Altavista Hillside Circuit",
     country: "Fictional Country D",
     date: "2026-04-19",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "A. Voss", team: "Meridian Racing" },
       { position: 2, driver: "R. Okafor", team: "Solace Motorsport" },
@@ -62,11 +74,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "A. Voss",
   },
   {
+    season: 2026,
     round: 5,
     name: "Rivermouth Grand Prix",
     circuit: "Rivermouth Street Circuit",
     country: "Fictional Country E",
     date: "2026-05-03",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "T. Ishikawa", team: "Vantage F1" },
       { position: 2, driver: "M. Beaumont", team: "Ferro Grand Prix" },
@@ -76,11 +91,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "M. Beaumont",
   },
   {
+    season: 2026,
     round: 6,
     name: "Grand Prix of Solmar",
     circuit: "Solmar Coastal Circuit",
     country: "Fictional Country F",
     date: "2026-05-17",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "T. Ishikawa", team: "Vantage F1" },
       { position: 2, driver: "A. Voss", team: "Meridian Racing" },
@@ -90,11 +108,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "T. Ishikawa",
   },
   {
+    season: 2026,
     round: 7,
     name: "Highland Grand Prix",
     circuit: "Highland Park Circuit",
     country: "Fictional Country G",
     date: "2026-05-31",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "T. Ishikawa", team: "Vantage F1" },
       { position: 2, driver: "K. Lindqvist", team: "Solace Motorsport" },
@@ -104,11 +125,14 @@ export const mockSeason2026: Race[] = [
     fastestLap: "K. Lindqvist",
   },
   {
+    season: 2026,
     round: 8,
     name: "Grand Prix of Castellon",
     circuit: "Castellon Ring",
     country: "Fictional Country H",
     date: "2026-06-14",
+    startTime: null,
+    status: "completed",
     podium: [
       { position: 1, driver: "A. Voss", team: "Meridian Racing" },
       { position: 2, driver: "T. Ishikawa", team: "Vantage F1" },
