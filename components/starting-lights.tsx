@@ -6,7 +6,7 @@ import { RotateCcw } from "lucide-react";
 type SequencePhase = "ready" | "running" | "go";
 
 const LIGHT_COUNT = 5;
-const LIGHT_INTERVAL_MS = 360;
+const LIGHT_INTERVAL_MS = 414;
 
 export function StartingLights() {
   const [litCount, setLitCount] = useState(0);
@@ -55,13 +55,6 @@ export function StartingLights() {
     };
   }, [clearTimers, runSequence]);
 
-  const status =
-    phase === "go"
-      ? "Lights out — away we go!"
-      : phase === "running"
-        ? `${litCount} of ${LIGHT_COUNT} lights illuminated`
-        : "Start sequence ready";
-
   return (
     <div className="rounded-2xl border border-black/10 bg-[#17171d] p-4 text-white shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -94,10 +87,8 @@ export function StartingLights() {
         ))}
       </div>
 
-      <p
-        className={`mt-3 text-sm font-bold ${phase === "go" ? "text-[#ff6473]" : "text-white/70"}`}
-      >
-        {status}
+      <p className="mt-3 min-h-5 text-sm font-bold text-[#ff6473]">
+        {phase === "go" ? "Lights out — away we go!" : null}
       </p>
       <span className="sr-only" aria-live="polite">
         {phase === "go" ? "Lights out — away we go!" : ""}
