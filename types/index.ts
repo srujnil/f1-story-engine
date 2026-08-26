@@ -7,14 +7,17 @@ export type PodiumFinisher = {
 };
 
 export type Race = {
+  season: number;
   round: number;
   name: string;
   circuit: string;
   country: string;
   date: string; // ISO date, e.g. "2026-03-08"
+  startTime: string | null; // ISO timestamp when Jolpica supplies a race time
+  status: "completed" | "upcoming";
   podium: PodiumFinisher[];
-  poleSitter: string;
-  fastestLap: string;
+  poleSitter: string | null;
+  fastestLap: string | null;
 };
 
 export type DriverForm = {
@@ -24,7 +27,23 @@ export type DriverForm = {
   last6Positions: number[];
 };
 
-export type QuickStoryTag = "Momentum" | "Strategy" | "Drama" | "Standings";
+export type DriverStanding = {
+  position: number;
+  driver: string;
+  team: string;
+  points: number;
+  wins: number;
+};
+
+export type TeamStanding = {
+  position: number;
+  team: string;
+  points: number;
+  wins: number;
+};
+
+export type QuickStoryTag =
+  "Momentum" | "Strategy" | "Drama" | "Standings" | "Results";
 
 export type QuickStory = {
   id: string;
@@ -40,4 +59,73 @@ export type MomentumResult = {
   team: string;
   /** avg(prior 3) - avg(recent 3); positive = improving. */
   delta: number;
+};
+
+export type SeasonData = {
+  races: Race[];
+  driverForm: DriverForm[];
+  standings: DriverStanding[];
+  teamStandings: TeamStanding[];
+};
+
+export type CommunityReaction = "fire" | "agree" | "wild";
+
+export type CommunityComment = {
+  id: string;
+  author: string;
+  favoriteTeam: string;
+  body: string;
+  createdAtLabel: string;
+};
+
+export type CommunityPost = {
+  id: string;
+  author: string;
+  authorRole: "Editor" | "Member";
+  favoriteTeam: string;
+  category: "Paddock Debate" | "Hot Take" | "Race Chat";
+  headline: string;
+  body: string;
+  createdAtLabel: string;
+  reactions: Record<CommunityReaction, number>;
+  comments: CommunityComment[];
+};
+
+export type RaceStoryMomentType =
+  "red-flag" | "safety-car" | "penalty" | "collision";
+
+export type RaceStoryMoment = {
+  id: string;
+  lap: number;
+  type: RaceStoryMomentType;
+  headline: string;
+  detail: string;
+  provenance: "Race Control";
+};
+
+export type RaceStrategyStint = {
+  compound: string;
+  lapStart: number;
+  lapEnd: number;
+};
+
+export type RaceStrategy = {
+  driver: string;
+  team: string;
+  finishPosition: 1 | 2 | 3;
+  stints: RaceStrategyStint[];
+  pitLaps: number[];
+};
+
+export type RaceStory = {
+  round: number;
+  raceName: string;
+  sessionKey: number;
+  totalLaps: number;
+  classifiedFinishers: number;
+  retirements: number;
+  winnerGapSeconds: number | null;
+  disruptions: number;
+  moments: RaceStoryMoment[];
+  strategies: RaceStrategy[];
 };

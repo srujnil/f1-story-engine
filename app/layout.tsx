@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Barlow_Condensed } from "next/font/google";
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,12 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Condensed, bold headline font — broadcast-graphics feel for race names,
-// round numbers, and card titles. Body text stays on Geist for readability;
-// see the --font-heading override in globals.css for how this gets wired in.
-const barlowCondensed = Barlow_Condensed({
-  variable: "--font-barlow-condensed",
-  weight: ["500", "600", "700"],
+// Outfit is wider and more open than the v0 condensed face, which makes dense
+// dashboard headlines feel friendlier without sacrificing a sporting character.
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -36,12 +34,11 @@ export default function RootLayout({
   // shadcn's globals.css already ships light/dark CSS variables; forcing the
   // `dark` class here is the whole implementation, no extra theme code needed.
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${barlowCondensed.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable}`}
+    >
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

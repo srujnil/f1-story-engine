@@ -2,11 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { MomentumResult } from "@/types";
 
-export function MomentumSpotlight({ result }: { result: MomentumResult | null }) {
+export function MomentumSpotlight({
+  result,
+}: {
+  result: MomentumResult | null;
+}) {
   if (!result) {
-    // Defensive fallback — shouldn't happen with well-formed data, but an
-    // empty state beats a crash if the mock/real data set is ever malformed.
-    return null;
+    return (
+      <Card className="border-primary/20">
+        <CardHeader>
+          <Badge variant="outline" className="mb-1 w-fit">
+            Momentum Spotlight
+          </Badge>
+          <CardTitle>Building the form window</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          Momentum appears after six completed races.
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
