@@ -74,7 +74,7 @@ export function LiveStatGrid({
             : "Six races needed"
         }
         icon={<TrendingUp aria-hidden="true" className="size-5" />}
-        className="border-[#cbb4ef] bg-[#f0e8ff] text-[#7449b8]"
+        className="border-[#ef9aa4] bg-[#fff1f4] text-primary"
       />
       <StatCard
         eyebrow="Latest winner"

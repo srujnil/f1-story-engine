@@ -90,7 +90,7 @@ export function StandingsPanel({
       className="rounded-3xl border border-black/10 bg-white p-5 text-[#111118] shadow-sm sm:p-6"
     >
       <div className="mb-5">
-        <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-violet">
+        <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-primary">
           Championship
         </p>
         <h2

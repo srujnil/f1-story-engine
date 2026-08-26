@@ -89,7 +89,7 @@ function DiscussionCard({
             {post.createdAtLabel}
           </span>
         </div>
-        <Badge className="mt-3 w-fit border border-violet/20 bg-violet/10 text-[#7449b8]">
+        <Badge className="mt-3 w-fit border border-primary/20 bg-primary/10 text-primary">
           {post.category}
         </Badge>
         <CardTitle className="mt-2 text-2xl font-black tracking-tight">
@@ -307,9 +307,9 @@ export function CommunityPaddock() {
       </section>
 
       <aside className="space-y-5" aria-label="Community highlights">
-        <Card className="border border-violet/20 bg-[#f7f1ff] shadow-none">
+        <Card className="border border-primary/20 bg-[#fff1f4] shadow-none">
           <CardHeader>
-            <Sparkles aria-hidden="true" className="mb-2 size-5 text-violet" />
+            <Sparkles aria-hidden="true" className="mb-2 size-5 text-primary" />
             <CardTitle className="text-xl font-black">
               Your paddock identity
             </CardTitle>

@@ -189,7 +189,7 @@ export function RaceStoryPanel({
           <div className="mb-4 flex items-center gap-2">
             <FlagTriangleRight
               aria-hidden="true"
-              className="size-5 text-violet"
+              className="size-5 text-primary"
             />
             <h3 className="font-heading text-2xl font-black">
               Pivotal moments
@@ -269,7 +269,7 @@ export function RaceStoryPanel({
         </div>
       </div>
 
-      <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-violet/20 bg-[#f7f1ff] p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-primary/20 bg-[#fff1f4] p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-heading font-black">
             What was the real turning point?
@@ -281,7 +281,7 @@ export function RaceStoryPanel({
         </div>
         <Link
           href={`/community?round=${story.round}`}
-          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-violet px-4 py-2 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet focus-visible:ring-offset-2"
+          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <MessageCircle aria-hidden="true" className="size-4" /> Discuss this
           race

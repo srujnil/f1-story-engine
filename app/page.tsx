@@ -5,6 +5,7 @@ import { LiveStatGrid } from "@/components/live-stat-grid";
 import { NavBar } from "@/components/nav-bar";
 import { QuickStoryCard } from "@/components/quick-story-card";
 import { StandingsPanel } from "@/components/standings-panel";
+import { StartingLights } from "@/components/starting-lights";
 import { getSeasonData } from "@/lib/jolpica";
 import { computeMomentum } from "@/lib/momentum";
 import { buildResultStories } from "@/lib/result-stories";
@@ -50,25 +51,28 @@ export default async function StorylineHubPage() {
               Live season intelligence
             </div>
             <h1 className="max-w-4xl font-heading text-5xl font-black leading-[0.96] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
-              The season has a <span className="text-violet">pulse.</span>
+              The season has a <span className="text-primary">pulse.</span>
             </h1>
             <p className="mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
               Follow the drivers gaining ground, the title pressure building,
               and the results shaping 2026.
             </p>
           </div>
-          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
-            <div className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              <span>Season progress</span>
-              <span>
-                {completedRaces.length} / {seasonData.races.length} rounds
-              </span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-black/10">
-              <div
-                className="h-full rounded-full bg-electric transition-[width] duration-700"
-                style={{ width: `${progress}%` }}
-              />
+          <div className="grid gap-3">
+            <StartingLights />
+            <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+              <div className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span>Season progress</span>
+                <span>
+                  {completedRaces.length} / {seasonData.races.length} rounds
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-black/10">
+                <div
+                  className="h-full rounded-full bg-primary transition-[width] duration-700"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -92,7 +96,7 @@ export default async function StorylineHubPage() {
         >
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-violet">
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-primary">
                 Race feed
               </p>
               <h2
@@ -117,9 +121,9 @@ export default async function StorylineHubPage() {
           </div>
         </section>
 
-        <section className="grid items-center gap-6 rounded-[2rem] border border-violet/20 bg-[#f7f1ff] p-6 sm:p-8 lg:grid-cols-[1fr_auto]">
+        <section className="grid items-center gap-6 rounded-[2rem] border border-primary/20 bg-[#fff1f4] p-6 sm:p-8 lg:grid-cols-[1fr_auto]">
           <div>
-            <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-violet">
+            <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-primary">
               Community paddock
             </p>
             <h2 className="font-heading text-3xl font-black tracking-tight">
@@ -132,7 +136,7 @@ export default async function StorylineHubPage() {
           </div>
           <Link
             href="/community"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-violet px-5 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Enter the paddock →
           </Link>

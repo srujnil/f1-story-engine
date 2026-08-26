@@ -38,7 +38,7 @@ function ArchiveArrow({
       href={storyHref(race)}
       prefetch={false}
       aria-label={`${label}: ${race.name}`}
-      className="grid size-10 place-items-center rounded-xl border border-black/10 bg-white text-black/60 transition-colors hover:border-electric/40 hover:bg-electric/10 hover:text-[#1479ad] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric"
+      className="grid size-10 place-items-center rounded-xl border border-black/10 bg-white text-black/60 transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       <Icon aria-hidden="true" className="size-4" />
     </Link>
@@ -80,7 +80,7 @@ export function RaceStoryArchive({
       <div className="rounded-3xl border border-black/10 bg-[#f8f9fb] p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
-            <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-violet">
+            <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-primary">
               <History aria-hidden="true" className="size-4" /> Race Story
               archive
             </p>
@@ -105,7 +105,7 @@ export function RaceStoryArchive({
 
         <nav
           aria-label="Completed race stories"
-          className="flex snap-x gap-2 overflow-x-auto pb-2"
+          className="flex snap-x gap-3 overflow-x-auto pb-3"
         >
           {completedRaces.map((race) => {
             const selected = race.round === selectedRound;
@@ -120,10 +120,10 @@ export function RaceStoryArchive({
                 aria-label={`View ${race.name} race story`}
                 title={race.name}
                 data-selected={selected}
-                className={`circuit-tile group relative min-w-32 snap-start overflow-hidden rounded-2xl border px-3 py-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric ${
+                className={`circuit-tile group relative min-w-44 snap-start overflow-hidden rounded-2xl border px-4 py-4 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-w-48 ${
                   selected
-                    ? "border-electric/55 bg-[#eef9ff] text-[#08628f] shadow-sm"
-                    : "border-black/10 bg-white text-[#24242d] hover:-translate-y-0.5 hover:border-electric/35 hover:bg-[#f6fbff]"
+                    ? "border-primary/55 bg-[#fff1f4] text-primary shadow-sm"
+                    : "border-black/10 bg-white text-[#24242d] hover:-translate-y-0.5 hover:border-primary/35 hover:bg-[#fff7f8]"
                 }`}
               >
                 <span className="flex items-center justify-between gap-2">
@@ -131,7 +131,7 @@ export function RaceStoryArchive({
                     R{race.round}
                   </span>
                   {circuitAsset ? (
-                    <span aria-hidden="true" className="text-xl leading-none">
+                    <span aria-hidden="true" className="text-2xl leading-none">
                       {countryFlag(circuitAsset.countryCode)}
                     </span>
                   ) : null}
@@ -141,7 +141,7 @@ export function RaceStoryArchive({
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 500 500"
-                    className="mt-1 h-14 w-full overflow-visible p-1"
+                    className="mt-2 h-24 w-full overflow-visible p-1"
                   >
                     <use
                       href={`/circuits/${circuitAsset.asset}.svg#track`}
