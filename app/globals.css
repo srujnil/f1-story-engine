@@ -147,6 +147,23 @@
   }
 }
 
+@keyframes tyre-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tyre-rotate {
+  animation: tyre-rotate 12s linear infinite;
+}
+
+.motorsport-pattern {
+  background-image: url("/patterns/motorsport.svg");
+  background-position: center top;
+  background-repeat: repeat;
+  background-size: 260px 210px;
+}
+
 .circuit-outline {
   fill: none;
   stroke: currentColor;
@@ -172,6 +189,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tyre-rotate {
+    animation: none;
+  }
+
   .circuit-tile:hover .circuit-tracer,
   .circuit-tile:focus-visible .circuit-tracer,
   .circuit-tile[data-selected="true"] .circuit-tracer {

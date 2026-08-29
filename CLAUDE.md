@@ -110,7 +110,7 @@ Small commits, one per meaningful chunk of work.
   OpenF1 failures remain genuine errors.
 - **Car Explorer v1**: `/car-explorer` upgraded from the SVG diagram to a real
   rotatable 3D model — "2026 F1 CAR EVO-1" by Abu Saif, CC BY 4.0 via Sketchfab
-  (credited on-page, required by the license). The as-downloaded model was ~48MB /
+  (credited in the page-bottom source footer, required by the license). The as-downloaded model was ~48MB /
   ~5M render vertices across 107 near-anonymous meshes (no per-part names besides
   "FRONT NOSE" and "floor"); `gltf-transform optimize` (weld/join/simplify/meshopt)
   cut it to ~570KB / ~740K vertices before committing it to `public/models/`.
@@ -123,6 +123,19 @@ Small commits, one per meaningful chunk of work.
   car-part explanations and 2026 rule claims must be checked against, and visibly
   link to, current official FIA sources; never present the model as a real team's
   actual car.
+- **Car showcase motion**: the white-studio model auto-rotates slowly only while
+  at least 25% of its stage is visible. The first OrbitControls drag or zoom marks
+  the scene as user-controlled and disables showcase rotation for that component
+  visit; damping keeps the handoff smooth.
+- **Car Explorer learning labs**: the page also includes an interactive five-type
+  tyre lab (Soft, Medium, Hard, Intermediate, Full Wet) sourced from Pirelli's
+  current F1 terminology, plus a lightweight CFD-inspired airflow visual. Tyre
+  bars are relative educational profiles, not measured data. The airflow panel is
+  a conceptual React Three Fiber particle visual, never an engineering simulation.
+  It clones the existing GLTF scene so the two canvases do not re-parent one Three.js
+  object, uses authored Catmull-Rom flow paths and instanced path-aligned streaks, supports
+  side/top/front/floor cameras plus layer and playback controls, lowers particle
+  density on small screens, and starts paused when reduced motion is preferred.
 - **Known environment gotcha**: a from-scratch `<Canvas>` can render solid black
   even with a correct scene graph, camera, and no console errors — the WebGL
   context creation itself can fail silently under contexts/tabs that have

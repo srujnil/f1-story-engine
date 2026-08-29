@@ -1,6 +1,13 @@
 "use client";
 
-import { Component, Suspense, useState, type ReactNode } from "react";
+import {
+  Component,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -90,12 +97,14 @@ function Hotspot({
 
 function CarSceneContent({
   activePartId,
+  showcaseActive,
   onSelect,
 }: {
   activePartId: string;
+  showcaseActive: boolean;
   onSelect: (id: string) => void;
 }) {
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
     <>
@@ -135,11 +144,13 @@ function CarSceneContent({
       <OrbitControls
         target={MODEL_CENTER}
         enablePan={false}
+        enableDamping
+        dampingFactor={0.07}
         minDistance={2}
         maxDistance={14}
-        autoRotate={autoRotate}
-        autoRotateSpeed={0.6}
-        onStart={() => setAutoRotate(false)}
+        autoRotate={showcaseActive && !hasInteracted}
+        autoRotateSpeed={0.45}
+        onStart={() => setHasInteracted(true)}
       />
     </>
   );
@@ -184,64 +195,23 @@ function LoadFailure() {
   );
 }
 
-const creditLinkClass =
-  "font-semibold text-black/60 underline-offset-2 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary";
-
-function ModelCredit() {
-  return (
-    <p className="absolute bottom-2 left-2 z-20 max-w-[calc(100%-1rem)] rounded-lg border border-black/10 bg-white/90 px-2.5 py-1.5 text-[10px] leading-snug text-black/45 shadow-sm backdrop-blur-sm sm:text-[11px]">
-      Fan-made concept ·{" "}
-      <a
-        href="https://sketchfab.com/3d-models/2026-f1-car-evo-1-2208ef7bd3de4e25be25efa100f27501"
-        target="_blank"
-        rel="noreferrer"
-        className={creditLinkClass}
-      >
-        2026 F1 Car EVO-1
-      </a>{" "}
-      ·{" "}
-      <a
-        href="https://sketchfab.com/abuhossain844"
-        target="_blank"
-        rel="noreferrer"
-        className={creditLinkClass}
-      >
-        Abu Saif
-      </a>{" "}
-      ·{" "}
-      <a
-        href="https://creativecommons.org/licenses/by/4.0/"
-        target="_blank"
-        rel="noreferrer"
-        className={creditLinkClass}
-      >
-        CC BY 4.0
-      </a>{" "}
-      ·{" "}
-      <a
-        href="https://www.fia.com/news/new-era-competition-fia-showcases-future-focused-formula-1-regulations-2026-and-beyond"
-        target="_blank"
-        rel="noreferrer"
-        className={creditLinkClass}
-      >
-        FIA 2026
-      </a>{" "}
-      ·{" "}
-      <a
-        href="https://www.fia.com/regulations/technical-regulations/2026/FIA-C11.1.1"
-        target="_blank"
-        rel="noreferrer"
-        className={creditLinkClass}
-      >
-        technical rules
-      </a>
-    </p>
-  );
-}
-
 export default function CarScene() {
   const [activePartId, setActivePartId] = useState(CAR_PARTS[0].id);
+  const [showcaseActive, setShowcaseActive] = useState(true);
+  const modelStageRef = useRef<HTMLDivElement>(null);
   const activePart = CAR_PARTS.find((part) => part.id === activePartId)!;
+
+  useEffect(() => {
+    const stage = modelStageRef.current;
+    if (!stage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowcaseActive(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
@@ -253,7 +223,10 @@ export default function CarScene() {
             </div>
           }
         >
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm lg:aspect-auto lg:h-[500px]">
+          <div
+            ref={modelStageRef}
+            className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm lg:aspect-auto lg:h-[500px]"
+          >
             <div
               aria-hidden="true"
               className="absolute left-0 top-0 z-10 h-1 w-1/3 bg-primary"
@@ -271,11 +244,11 @@ export default function CarScene() {
               <Suspense fallback={null}>
                 <CarSceneContent
                   activePartId={activePartId}
+                  showcaseActive={showcaseActive}
                   onSelect={setActivePartId}
                 />
               </Suspense>
             </Canvas>
-            <ModelCredit />
           </div>
         </ModelErrorBoundary>
 
@@ -313,7 +286,7 @@ export default function CarScene() {
 
       <Card
         key={activePart.id}
-        className="animate-in fade-in slide-in-from-bottom-2 h-fit border-t-4 duration-300 motion-reduce:animate-none"
+        className="animate-in fade-in slide-in-from-bottom-2 border-t-4 duration-300 motion-reduce:animate-none lg:h-full lg:min-h-[500px]"
         style={{ borderTopColor: activePart.accent }}
       >
         <CardHeader>
@@ -327,10 +300,31 @@ export default function CarScene() {
           </div>
           <CardTitle>{activePart.label}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-1 flex-col">
           <CardDescription className="text-sm leading-relaxed">
             {activePart.description}
           </CardDescription>
+          <div className="mt-8 border-t border-black/10 pt-5 lg:mt-auto">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-black/35">
+              Explore 7 systems
+            </p>
+            <div className="mt-3 flex items-center gap-2" aria-hidden="true">
+              {CAR_PARTS.map((part) => (
+                <span
+                  key={part.id}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-opacity",
+                    part.id === activePartId ? "opacity-100" : "opacity-25",
+                  )}
+                  style={{ backgroundColor: part.accent }}
+                />
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-black/45">
+              Select a hotspot on the car or use the component controls below
+              the studio.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

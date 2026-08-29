@@ -221,12 +221,25 @@ fan-made “2026 F1 Car EVO-1” model by Abu Saif (CC BY 4.0):
   the same free-tier-friendly asset without external storage.
 - Users can rotate and zoom the model, then select seven broad car systems through
   accessible 3D hotspots or keyboard-friendly selector controls.
+- The studio model slowly auto-rotates as a showcase while it is visible, then
+  permanently hands camera control to the user after their first drag or zoom.
 - A white studio stage, colour-coded markers, and a compact part detail card keep
   the experience clear without implying a real team livery.
 - Model attribution, licence, and official FIA regulation sources remain visibly
-  linked in a compact credit strip inside the model stage.
+  linked in a minimal source footer at the bottom of the page, keeping the studio
+  stage visually clean without hiding required credit.
 - The model is explicitly presented as a fan-made concept, never a real team's
   technical design. An explode view and team-specific geometry remain deferred.
+- An interactive tyre strategy lab covers the weekend-labelled Soft, Medium, Hard,
+  Intermediate, and Full Wet compounds using current official Pirelli terminology.
+  Relative trait profiles are educational rather than live telemetry because tyre
+  performance changes with the nominated compound, circuit, car, and conditions.
+- A React Three Fiber wind-tunnel lab reuses a cloned instance of the concept car
+  with lightweight, path-aligned glowing streaks following authored aerodynamic paths. Side,
+  top, front, and floor cameras combine with speed, streamline, pressure-zone,
+  turbulence, pause, and reset controls. It is explicitly labelled as an
+  illustration, not engineering simulation data, reduces particle density on small
+  screens, and starts paused for users who prefer reduced motion.
 
 ## Constraints
 
