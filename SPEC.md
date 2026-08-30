@@ -139,7 +139,7 @@ Decisions for the persistent slice:
 
 ## Tech Stack
 
-- Next.js 15 (App Router), TypeScript (strict)
+- Next.js 16 (App Router), TypeScript (strict)
 - Tailwind CSS 4
 - shadcn/ui for primitives (Base UI headless components under the hood)
 - Recharts 3 for interactive driver-form and standings visualizations

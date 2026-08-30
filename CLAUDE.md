@@ -14,7 +14,7 @@ for full scope.
 
 ## Tech Stack
 
-- Next.js 15 (App Router), TypeScript (strict mode)
+- Next.js 16 (App Router), TypeScript (strict mode)
 - Tailwind CSS 4
 - shadcn/ui for primitives (this project's shadcn preset builds on Base UI, not
   Radix — same idea, accessible headless components, reuse before hand-rolling)
@@ -168,12 +168,4 @@ Small commits, one per meaningful chunk of work.
 - shadcn/ui `Sheet` component used for the race detail side panel (Base UI
   Dialog under the hood — focus trap, ESC-to-close — comes for free).
 
-<!-- BEGIN:nextjs-agent-rules -->
-
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+@AGENTS.md
