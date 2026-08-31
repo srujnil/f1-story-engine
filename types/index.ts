@@ -68,7 +68,7 @@ export type SeasonData = {
   teamStandings: TeamStanding[];
 };
 
-export type CommunityReaction = "fire" | "agree" | "wild";
+export type CommunityReaction = "fire" | "agree" | "wild" | "disagree";
 
 export type CommunityComment = {
   id: string;

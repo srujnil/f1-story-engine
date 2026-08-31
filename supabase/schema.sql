@@ -101,7 +101,7 @@ create policy "authenticated users can create their own comments"
 create table public.reactions (
   post_id uuid not null references public.posts (id) on delete cascade,
   author_id uuid not null references public.profiles (id) on delete cascade,
-  reaction_type text not null check (reaction_type in ('fire', 'agree', 'wild')),
+  reaction_type text not null check (reaction_type in ('fire', 'agree', 'wild', 'disagree')),
   created_at timestamptz not null default now(),
   primary key (post_id, author_id)
 );

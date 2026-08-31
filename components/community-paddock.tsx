@@ -18,6 +18,9 @@ const reactionOptions: Array<{
   { value: "fire", label: "Fire", icon: "🔥" },
   { value: "agree", label: "Agree", icon: "✓" },
   { value: "wild", label: "Wild take", icon: "🌶️" },
+  // Inside joke — the disagree reaction. Deliberately not "Disagree" as the
+  // label; the bit is the point.
+  { value: "disagree", label: "No Mikey No", icon: "🔴" },
 ];
 
 function TeamMark({ team }: { team: string }) {

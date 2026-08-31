@@ -23,7 +23,7 @@ export const mockCommunityPosts: CommunityPost[] = [
     headline: "Which team would you trust most in a development race?",
     body: "Forget the current points table for a moment. Pick the team you think would make the smartest upgrades across the next six rounds—and tell the paddock why.",
     createdAtLabel: "18 min ago",
-    reactions: { fire: 38, agree: 21, wild: 7 },
+    reactions: { fire: 38, agree: 21, wild: 7, disagree: 4 },
     comments: [
       {
         id: "development-comment-1",
@@ -51,7 +51,7 @@ export const mockCommunityPosts: CommunityPost[] = [
       "Team orders should arrive earlier—not only when the title maths gets obvious.",
     body: "Waiting until the final third of a season can waste points. If one driver has the clearer championship route, the team should commit while the advantage still matters.",
     createdAtLabel: "42 min ago",
-    reactions: { fire: 64, agree: 46, wild: 19 },
+    reactions: { fire: 64, agree: 46, wild: 19, disagree: 12 },
     comments: [
       {
         id: "orders-comment-1",
@@ -71,7 +71,7 @@ export const mockCommunityPosts: CommunityPost[] = [
     headline: "What matters most in a perfect race weekend?",
     body: "Pole position, tyre management, clean pit stops, or adapting fastest when the race changes? Choose one—no fence-sitting.",
     createdAtLabel: "1 hr ago",
-    reactions: { fire: 27, agree: 18, wild: 11 },
+    reactions: { fire: 27, agree: 18, wild: 11, disagree: 3 },
     comments: [],
   },
 ];

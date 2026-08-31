@@ -76,7 +76,12 @@ function mapComment(row: CommentRow): CommunityComment {
 
 function mapPost(row: PostRow, currentUserId: string | null): CommunityPost {
   const who = identity(row);
-  const counts: Record<CommunityReaction, number> = { fire: 0, agree: 0, wild: 0 };
+  const counts: Record<CommunityReaction, number> = {
+    fire: 0,
+    agree: 0,
+    wild: 0,
+    disagree: 0,
+  };
   let myReaction: CommunityReaction | undefined;
   for (const reaction of row.reactions) {
     counts[reaction.reaction_type] += 1;
