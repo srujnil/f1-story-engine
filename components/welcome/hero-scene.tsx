@@ -12,7 +12,10 @@ const MODEL_PATH = "/models/f1-car.glb";
 // -0.45 — nowhere near the model's own origin at 0), not a position to move
 // the model to.
 const MODEL_CENTER: [number, number, number] = [0, 0.13, -2.84];
-const CAMERA_POSITION: [number, number, number] = [7, 2.4, -2.84];
+// Centered under the headline now (was offset hard left for a side-by-side
+// text layout) — smaller X offset keeps a flattering three-quarter angle
+// without pushing the car to one side of its now-bounded, narrower box.
+const CAMERA_POSITION: [number, number, number] = [5.4, 1.75, -2.84];
 const CAR_SCALE = 2.2;
 
 useGLTF.preload(MODEL_PATH);

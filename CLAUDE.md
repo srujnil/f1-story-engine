@@ -222,5 +222,22 @@ Small commits, one per meaningful chunk of work.
   center lands on the group's origin, then position the *group* wherever it
   needs to sit in world space. Check this any time a model's local origin
   isn't obviously at its geometric center.
+- **Hero is now a bounded box, not a full-bleed absolute layer**: it used to
+  be `absolute inset-0` across the entire viewport-height hero section,
+  overlapping content below it that scrolls past. That's the likely cause of
+  a white-flash/render-glitch report while scrolling — large WebGL canvases
+  positioned absolute-over-scrolling-content are a known compositor risk
+  category. Fixed by containing the Canvas to a fixed-size, centered box
+  (`h-[420px] sm:h-[540px]`, `max-w-4xl`) sitting in normal document flow
+  under the headline, confirmed glitch-free afterward. Car is also centered
+  under the headline now (was offset beside it in a side-by-side layout).
+- **Debugging gotcha for this hero**: the camera in `hero-scene.tsx` has no
+  explicit `lookAt`/target — react-three-fiber's default camera happens to
+  aim roughly at the world origin, which is *not* exactly `MODEL_CENTER`.
+  Screenshot-based framing checks are also unreliable if the preview
+  viewport is shorter than the box being tested — always size the test
+  viewport taller than the box before judging 3D framing off a screenshot,
+  or you'll debug a false "too zoomed in" crop that's really just a
+  viewport-height mismatch.
 
 @AGENTS.md

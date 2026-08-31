@@ -16,13 +16,8 @@ export default function WelcomePage() {
       <NavBar />
 
       {/* Hero */}
-      <section className="relative flex min-h-[calc(100svh-57px)] items-center justify-center overflow-hidden">
-        <HeroCanvas />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-b from-[#07080b]/40 via-[#07080b]/10 to-[#07080b]"
-        />
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+      <section className="relative bg-[#07080b] px-6 pb-10 pt-16 sm:pt-24">
+        <div className="mx-auto max-w-4xl text-center">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-white/50">
             F1 Story Engine
           </p>
@@ -32,9 +27,17 @@ export default function WelcomePage() {
             <span className="text-primary">— and community.</span>
           </h1>
         </div>
+
+        {/* Bounded box, not a full-bleed absolute layer over the whole
+            section — keeps the WebGL canvas's footprint predictable instead
+            of overlapping content that scrolls past it. */}
+        <div className="relative mx-auto mt-10 h-[420px] w-full max-w-4xl overflow-hidden rounded-3xl sm:h-[540px]">
+          <HeroCanvas />
+        </div>
+
         <div
           aria-hidden="true"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/40 motion-reduce:animate-none"
+          className="mt-6 flex justify-center animate-bounce text-white/40 motion-reduce:animate-none"
         >
           <svg
             width="20"
