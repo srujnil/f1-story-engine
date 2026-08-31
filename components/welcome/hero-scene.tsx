@@ -15,8 +15,19 @@ const MODEL_CENTER: [number, number, number] = [0, 0.13, -2.84];
 // Centered under the headline now (was offset hard left for a side-by-side
 // text layout) — smaller X offset keeps a flattering three-quarter angle
 // without pushing the car to one side of its now-bounded, narrower box.
-const CAMERA_POSITION: [number, number, number] = [5.4, 1.75, -2.84];
-const CAR_SCALE = 2.2;
+//
+// These numbers are sized against the model's WORST-CASE footprint while
+// rotating, not just its resting pose — the car sweeps a full 360°, and at
+// some angles its length projects much wider across the frame than at
+// others. Prior versions were tuned against a single snapshot and clipped
+// at other angles. Local bbox half-extents: x:0.825, y:0.48, z:2.395 →
+// horizontal sweep radius (rotation is Y-axis only, so XZ-plane matters)
+// = sqrt(0.825² + 2.395²) ≈ 2.53. At CAR_SCALE below, scaled radius ≈ 4.05;
+// this camera distance/fov combo keeps ~15-20% margin beyond that at every
+// rotation angle, confirmed by sampling screenshots across a full sweep,
+// not a single moment.
+const CAMERA_POSITION: [number, number, number] = [8.1, 2.6, -2.84];
+const CAR_SCALE = 1.6;
 
 useGLTF.preload(MODEL_PATH);
 

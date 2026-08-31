@@ -239,5 +239,16 @@ Small commits, one per meaningful chunk of work.
   viewport taller than the box before judging 3D framing off a screenshot,
   or you'll debug a false "too zoomed in" crop that's really just a
   viewport-height mismatch.
+- **Frame the hero car against its worst-case rotation footprint, not one
+  snapshot**: it auto-rotates a full 360°, and different angles project very
+  different apparent widths to a fixed camera — a broadside view is much
+  wider than a nose-on one. An earlier pass looked fine at whatever angle it
+  happened to be at during a screenshot, then clipped on the live site at
+  other angles. Fixed by computing the actual worst case: local bbox
+  half-extents x:0.825, y:0.48, z:2.395 → since rotation is Y-axis only, the
+  horizontal sweep radius is `sqrt(x² + z²) ≈ 2.53`, and camera
+  distance/`CAR_SCALE` are sized to keep ~15-20% margin beyond that at every
+  angle — verified by sampling screenshots across an actual rotation sweep
+  (nose-on, three-quarter, broadside, rear), not just the resting pose.
 
 @AGENTS.md
