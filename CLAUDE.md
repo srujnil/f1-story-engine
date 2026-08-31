@@ -195,5 +195,20 @@ Small commits, one per meaningful chunk of work.
   (function renamed `middleware` → `proxy` too). Confirmed against
   `node_modules/next/dist/docs/.../proxy.md`, not assumed — this repo's build
   warns loudly if the old name is used.
+- **Welcome v1**: `/welcome` is a personal scroll-story landing page, separate
+  from the `/` dashboard. Reuses `f1-car.glb` in a new dark hero (passive
+  auto-rotate only, no OrbitControls) via the same `dynamic(..., {ssr:false})`
+  boundary pattern as Car Explorer (`components/welcome/hero-canvas.tsx` /
+  `hero-scene.tsx`). `components/welcome/scroll-reveal.tsx` is a small reusable
+  `IntersectionObserver` fade-in, reduced-motion aware from the start via a
+  lazy `useState` initializer (not a `setState`-in-effect, which this repo's
+  ESLint config flags as an error).
+- **`.motorsport-pattern` is light-mode-tuned**: its SVG strokes are near-black
+  at low opacity, so it's invisible on a dark background as-is. Fixed on
+  `/welcome` with an isolated decorative layer (`invert` CSS filter applied
+  only to that layer, not to the text content sharing the section).
+- **Reused-asset license discipline**: any page that reuses `f1-car.glb` needs
+  its own copy of the CC BY 4.0 attribution footer — it's per-page, not
+  automatic just because the asset is already licensed for Car Explorer.
 
 @AGENTS.md

@@ -248,6 +248,28 @@ fan-made “2026 F1 Car EVO-1” model by Abu Saif (CC BY 4.0):
   illustration, not engineering simulation data, reduces particle density on small
   screens, and starts paused for users who prefer reduced motion.
 
+## Welcome v1 (scroll-story landing page)
+
+`/welcome` is a personal introduction/manifesto page, separate from the live-data
+dashboard at `/` — linked first in primary nav:
+
+- Full-viewport dark hero: the same licensed `f1-car.glb` from Car Explorer,
+  reused in a new dark/cinematic lighting setup (red + electric-blue rim lights,
+  no white studio) — slow passive auto-rotation only, no drag/zoom controls, since
+  this is a hero moment, not an explorer.
+- A scroll-revealed story (`components/welcome/scroll-reveal.tsx`, a small
+  reusable `IntersectionObserver` fade/slide wrapper) walks through the product
+  pitch, ending in a credit line and a personal dedication.
+- `.motorsport-pattern`'s strokes are tuned for the light Car Explorer page and
+  are invisible on a dark background undoctored — inverted via CSS `filter` on
+  an isolated decorative layer so the text content isn't also inverted.
+- Reduced motion is respected in both the hero rotation and the scroll reveals,
+  matching every other animated piece in the app.
+- The CC BY 4.0 attribution footer required for the reused model is carried onto
+  this page too, not just Car Explorer.
+- A closing CTA links back into `/` so the page doesn't dead-end for a first-
+  time visitor.
+
 ## Constraints
 
 - Everything free-tier friendly (Vercel free, Supabase free if/when a DB is needed,
