@@ -1,21 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 import { Flame, MessageCircle, Radio, Send, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  communityTeams,
-  mockCommunityPosts,
-  mockTrendingTopics,
-} from "@/data/mock-community";
-import { teamColor } from "@/lib/team-colors";
-import type {
-  CommunityComment,
-  CommunityPost,
-  CommunityReaction,
-} from "@/types";
+import { createClient } from "@/lib/supabase/client";
+import { COMMUNITY_TEAMS, teamColor } from "@/lib/team-colors";
+import type { CommunityPost, CommunityReaction } from "@/types";
 
 const reactionOptions: Array<{
   value: CommunityReaction;
@@ -26,9 +19,6 @@ const reactionOptions: Array<{
   { value: "agree", label: "Agree", icon: "✓" },
   { value: "wild", label: "Wild take", icon: "🌶️" },
 ];
-
-type ActiveReactions = Record<string, CommunityReaction | undefined>;
-type LocalComments = Record<string, CommunityComment[]>;
 
 function TeamMark({ team }: { team: string }) {
   return (
@@ -45,23 +35,28 @@ function TeamMark({ team }: { team: string }) {
 
 function DiscussionCard({
   post,
-  activeReaction,
-  localComments,
+  signedIn,
+  busy,
   onReact,
   onComment,
+  onRequireSignIn,
 }: {
   post: CommunityPost;
-  activeReaction?: CommunityReaction;
-  localComments: CommunityComment[];
+  signedIn: boolean;
+  busy: boolean;
   onReact: (postId: string, reaction: CommunityReaction) => void;
   onComment: (postId: string, body: string) => void;
+  onRequireSignIn: () => void;
 }) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [draft, setDraft] = useState("");
-  const comments = [...post.comments, ...localComments];
 
   function submitComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!signedIn) {
+      onRequireSignIn();
+      return;
+    }
     const body = draft.trim();
     if (!body) return;
     onComment(post.id, body);
@@ -101,16 +96,19 @@ function DiscussionCard({
 
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-black/[0.07] pt-4">
           {reactionOptions.map((option) => {
-            const active = activeReaction === option.value;
-            const count = post.reactions[option.value] + (active ? 1 : 0);
+            const active = post.myReaction === option.value;
+            const count = post.reactions[option.value];
             return (
               <button
                 key={option.value}
                 type="button"
+                disabled={busy}
                 aria-pressed={active}
                 aria-label={`${option.label}, ${count} reactions`}
-                onClick={() => onReact(post.id, option.value)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric ${
+                onClick={() =>
+                  signedIn ? onReact(post.id, option.value) : onRequireSignIn()
+                }
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric disabled:opacity-50 ${
                   active
                     ? "border-electric/40 bg-electric/15 text-[#1479ad]"
                     : "border-black/10 bg-[#f7f8fb] text-black/60 hover:bg-electric/10"
@@ -128,18 +126,19 @@ function DiscussionCard({
             className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-black/55 hover:bg-black/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric"
           >
             <MessageCircle aria-hidden="true" className="size-4" />
-            {comments.length} {comments.length === 1 ? "comment" : "comments"}
+            {post.comments.length}{" "}
+            {post.comments.length === 1 ? "comment" : "comments"}
           </button>
         </div>
 
         {commentsOpen && (
           <div className="mt-5 space-y-4 rounded-2xl bg-[#f7f8fb] p-4">
-            {comments.length ? (
+            {post.comments.length ? (
               <ul
                 className="space-y-4"
                 aria-label={`Comments on ${post.headline}`}
               >
-                {comments.map((comment) => (
+                {post.comments.map((comment) => (
                   <li
                     key={comment.id}
                     className="border-b border-black/[0.07] pb-4 last:border-0 last:pb-0"
@@ -163,31 +162,40 @@ function DiscussionCard({
               </p>
             )}
 
-            <form
-              onSubmit={submitComment}
-              className="flex flex-col gap-2 sm:flex-row"
-            >
-              <label htmlFor={`comment-${post.id}`} className="sr-only">
-                Add a demo comment
-              </label>
-              <input
-                id={`comment-${post.id}`}
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                maxLength={280}
-                placeholder="Add a demo comment…"
-                className="min-h-10 flex-1 rounded-xl border border-black/10 bg-white px-3 text-sm outline-none placeholder:text-black/35 focus-visible:ring-2 focus-visible:ring-electric"
-              />
-              <Button
-                type="submit"
-                className="bg-electric text-white hover:bg-[#248ed0]"
+            {signedIn ? (
+              <form
+                onSubmit={submitComment}
+                className="flex flex-col gap-2 sm:flex-row"
               >
-                <Send aria-hidden="true" /> Post locally
-              </Button>
-            </form>
-            <p className="text-xs text-black/40">
-              Prototype only—comments reset when the page refreshes.
-            </p>
+                <label htmlFor={`comment-${post.id}`} className="sr-only">
+                  Add a comment
+                </label>
+                <input
+                  id={`comment-${post.id}`}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  maxLength={280}
+                  disabled={busy}
+                  placeholder="Add a comment…"
+                  className="min-h-10 flex-1 rounded-xl border border-black/10 bg-white px-3 text-sm outline-none placeholder:text-black/35 focus-visible:ring-2 focus-visible:ring-electric"
+                />
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  className="bg-electric text-white hover:bg-[#248ed0]"
+                >
+                  <Send aria-hidden="true" /> Post
+                </Button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={onRequireSignIn}
+                className="text-sm font-bold text-primary underline-offset-4 hover:underline"
+              >
+                Sign in to comment →
+              </button>
+            )}
           </div>
         )}
       </CardContent>
@@ -195,40 +203,95 @@ function DiscussionCard({
   );
 }
 
-export function CommunityPaddock() {
+export function CommunityPaddock({
+  initialPosts,
+  currentUserId,
+  currentUserTeam,
+}: {
+  initialPosts: CommunityPost[];
+  currentUserId: string | null;
+  currentUserTeam: string | null;
+}) {
+  const router = useRouter();
+  const signedIn = currentUserId !== null;
   const [selectedTeam, setSelectedTeam] = useState("All paddock");
-  const [activeReactions, setActiveReactions] = useState<ActiveReactions>({});
-  const [localComments, setLocalComments] = useState<LocalComments>({});
+  const [busy, setBusy] = useState(false);
 
   const visiblePosts = useMemo(
     () =>
       selectedTeam === "All paddock"
-        ? mockCommunityPosts
-        : mockCommunityPosts.filter(
-            (post) => post.favoriteTeam === selectedTeam,
-          ),
-    [selectedTeam],
+        ? initialPosts
+        : initialPosts.filter((post) => post.favoriteTeam === selectedTeam),
+    [initialPosts, selectedTeam],
   );
 
-  function react(postId: string, reaction: CommunityReaction) {
-    setActiveReactions((current) => ({
-      ...current,
-      [postId]: current[postId] === reaction ? undefined : reaction,
-    }));
+  // Real trending list: post count + comment/reaction activity per category,
+  // computed from the live feed rather than a fixture.
+  const trendingTopics = useMemo(() => {
+    const byCategory = new Map<string, { posts: number; activity: number }>();
+    for (const post of initialPosts) {
+      const entry = byCategory.get(post.category) ?? { posts: 0, activity: 0 };
+      entry.posts += 1;
+      entry.activity +=
+        post.comments.length +
+        post.reactions.fire +
+        post.reactions.agree +
+        post.reactions.wild;
+      byCategory.set(post.category, entry);
+    }
+    return [...byCategory.entries()]
+      .sort((a, b) => b[1].activity - a[1].activity)
+      .slice(0, 3)
+      .map(([label, entry]) => ({ label, posts: entry.posts }));
+  }, [initialPosts]);
+
+  function requireSignIn() {
+    router.push("/auth/sign-in");
   }
 
-  function addComment(postId: string, body: string) {
-    const comment: CommunityComment = {
-      id: `local-${postId}-${Date.now()}`,
-      author: "Demo fan",
-      favoriteTeam: selectedTeam === "All paddock" ? "Williams" : selectedTeam,
-      body,
-      createdAtLabel: "Just now",
-    };
-    setLocalComments((current) => ({
-      ...current,
-      [postId]: [...(current[postId] ?? []), comment],
-    }));
+  async function react(postId: string, reaction: CommunityReaction) {
+    if (!currentUserId || busy) return;
+    setBusy(true);
+    const supabase = createClient();
+    const post = initialPosts.find((p) => p.id === postId);
+
+    if (post?.myReaction === reaction) {
+      await supabase
+        .from("reactions")
+        .delete()
+        .eq("post_id", postId)
+        .eq("author_id", currentUserId);
+    } else {
+      await supabase
+        .from("reactions")
+        .upsert(
+          { post_id: postId, author_id: currentUserId, reaction_type: reaction },
+          { onConflict: "post_id,author_id" },
+        );
+    }
+    router.refresh();
+    setBusy(false);
+  }
+
+  async function addComment(postId: string, body: string) {
+    if (!currentUserId || busy) return;
+    setBusy(true);
+    const supabase = createClient();
+    await supabase
+      .from("comments")
+      .insert({ post_id: postId, author_id: currentUserId, body });
+    router.refresh();
+    setBusy(false);
+  }
+
+  async function setFavoriteTeam(team: string) {
+    if (!currentUserId) return;
+    const supabase = createClient();
+    await supabase
+      .from("profiles")
+      .update({ favorite_team: team })
+      .eq("id", currentUserId);
+    router.refresh();
   }
 
   return (
@@ -247,7 +310,7 @@ export function CommunityPaddock() {
             </h2>
           </div>
           <span className="hidden items-center gap-2 rounded-full bg-[#eaf8f4] px-3 py-1.5 text-xs font-bold text-[#147f6a] sm:inline-flex">
-            <Radio aria-hidden="true" className="size-3.5" /> Demo mode
+            <Radio aria-hidden="true" className="size-3.5" /> Live
           </span>
         </div>
 
@@ -255,7 +318,7 @@ export function CommunityPaddock() {
           className="mb-5 flex gap-2 overflow-x-auto pb-2"
           aria-label="Filter by favourite team"
         >
-          {["All paddock", ...communityTeams].map((team) => {
+          {["All paddock", ...COMMUNITY_TEAMS].map((team) => {
             const active = team === selectedTeam;
             return (
               <button
@@ -287,10 +350,11 @@ export function CommunityPaddock() {
             <DiscussionCard
               key={post.id}
               post={post}
-              activeReaction={activeReactions[post.id]}
-              localComments={localComments[post.id] ?? []}
+              signedIn={signedIn}
+              busy={busy}
               onReact={react}
               onComment={addComment}
+              onRequireSignIn={requireSignIn}
             />
           ))}
           {!visiblePosts.length && (
@@ -307,18 +371,63 @@ export function CommunityPaddock() {
       </section>
 
       <aside className="space-y-5" aria-label="Community highlights">
-        <Card className="border border-primary/20 bg-[#fff1f4] shadow-none">
-          <CardHeader>
-            <Sparkles aria-hidden="true" className="mb-2 size-5 text-primary" />
-            <CardTitle className="text-xl font-black">
-              Your paddock identity
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm leading-relaxed text-black/60">
-            Sign-in, permanent favourite teams, and saved activity arrive with
-            the Supabase slice.
-          </CardContent>
-        </Card>
+        {signedIn && !currentUserTeam ? (
+          <Card className="border border-electric/25 bg-[#eef9ff] shadow-none">
+            <CardHeader>
+              <Sparkles aria-hidden="true" className="mb-2 size-5 text-[#1479ad]" />
+              <CardTitle className="text-xl font-black">
+                Pick your team
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {COMMUNITY_TEAMS.map((team) => (
+                  <button
+                    key={team}
+                    type="button"
+                    onClick={() => setFavoriteTeam(team)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-bold text-black/70 hover:bg-electric/10"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: teamColor(team) }}
+                    />
+                    {team}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border border-primary/20 bg-[#fff1f4] shadow-none">
+            <CardHeader>
+              <Sparkles aria-hidden="true" className="mb-2 size-5 text-primary" />
+              <CardTitle className="text-xl font-black">
+                Your paddock identity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm leading-relaxed text-black/60">
+              {signedIn ? (
+                <>
+                  Backing <strong className="text-[#24242d]">{currentUserTeam}</strong>.
+                  React and comment freely — it&apos;s saved to your account.
+                </>
+              ) : (
+                <>
+                  Sign in to react, comment, and pick a favourite team.{" "}
+                  <button
+                    type="button"
+                    onClick={requireSignIn}
+                    className="font-bold text-primary underline-offset-4 hover:underline"
+                  >
+                    Sign in →
+                  </button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="border border-amber/30 bg-[#fff9df] shadow-none">
           <CardHeader>
@@ -327,7 +436,7 @@ export function CommunityPaddock() {
           </CardHeader>
           <CardContent>
             <ol className="space-y-4">
-              {mockTrendingTopics.map((topic, index) => (
+              {trendingTopics.map((topic, index) => (
                 <li key={topic.label} className="flex items-center gap-3">
                   <span className="font-mono text-xs text-black/35">
                     0{index + 1}
@@ -335,7 +444,7 @@ export function CommunityPaddock() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{topic.label}</p>
                     <p className="text-xs text-black/45">
-                      {topic.posts} demo posts
+                      {topic.posts} {topic.posts === 1 ? "post" : "posts"}
                     </p>
                   </div>
                 </li>

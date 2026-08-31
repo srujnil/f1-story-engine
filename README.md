@@ -21,8 +21,9 @@ Season Timeline.
   interactive form chart, and factual recent-result feed
 - `/seasons/[year]` — full schedule and completed results, with upcoming race states
   plus a selectable archive of pivotal Race Control events and podium tyre strategy
-- `/community` — shared-paddock prototype with team filters, reactions, and local
-  demo comments; interactions are non-persistent until auth and moderation land
+- `/community` — real, persisted shared paddock (Supabase Auth + Postgres): team
+  filters, reactions, and comments. Reading is public; posting needs a magic-link
+  email sign-in
 - `/car-explorer` — sourced, rotatable 3D car-parts explainer with accessible
   hotspots and selector controls; the licensed fan-made model is not a real
   team's technical design
@@ -41,15 +42,22 @@ hour; the base timeline still works if this enrichment is unavailable.
 ```
 /app          — routes (Next.js App Router)
 /components   — shared React components
-/lib          — business logic and the server-only Jolpica adapter
+/lib          — business logic, and server-only Jolpica/OpenF1/Supabase adapters
 /data         — clearly labeled development fixtures
 /types        — shared TypeScript types
+/supabase     — schema.sql (tables, RLS, rate limits, grants, seed data)
 ```
 
 ## Environment variables
 
-No environment variables are required. Copy `.env.example` to `.env.local` only
-if you need to override the default Jolpica base URL.
+Copy `.env.example` to `.env.local`. The Jolpica/OpenF1 vars are optional
+(code has defaults); `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` are required for Community sign-in/persistence
+to work — get them from your Supabase project's Settings → API.
+
+Schema setup: run `supabase/schema.sql` once in your project's SQL Editor
+(creates tables, RLS policies, rate-limit triggers, required GRANTs, and seeds
+the starter discussion posts).
 
 ## Data behavior
 

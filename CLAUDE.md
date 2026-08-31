@@ -92,13 +92,37 @@ Small commits, one per meaningful chunk of work.
   with interactive visual storytelling, creator-friendly 9:16 graphics/video
   modes, personalization, and community participation. These ship as vertical
   slices after the trustworthy real-data foundation.
-- **Community Paddock v0**: `/community` launches as one shared paddock with
-  favourite-team filters, fictional demo discussions, and client-local reactions
-  and comments. The UI explicitly says interactions reset on refresh.
-- **Persistent community guardrails**: real posting will require Supabase auth;
-  news remains editor-created and sourced, while fan content is labelled discussion
-  or hot takes. RLS, reporting, rate limits, and admin removal are launch blockers.
-  Separate team rooms, DMs, media uploads, followers, and complex profiles are deferred.
+- **Community Paddock v1 (persistent)**: `/community` is real now — Supabase Auth
+  (magic-link email only, no password/OAuth yet) + Postgres. Reading is public;
+  reacting/commenting requires sign-in. Schema/RLS/rate-limits/GRANTs live in
+  `supabase/schema.sql`, applied by hand via the SQL Editor (no migrations tooling
+  in v0). A Postgres trigger auto-creates a `profiles` row on signup.
+- **Supabase client architecture**: `lib/supabase/client.ts` (browser, singleton),
+  `lib/supabase/server.ts` (fresh per-request, wired to `next/headers` cookies),
+  `proxy.ts` (session refresh — see "Next.js 16 rename" below). `lib/community.ts`
+  is the server-only adapter that shapes DB rows into the existing `CommunityPost`
+  UI types, same pattern as `lib/jolpica.ts`.
+- **RLS + GRANTs, not RLS alone**: this Supabase project has "Automatically expose
+  new tables" turned off deliberately (tighter default access). That means RLS
+  policies alone 42501 with "permission denied" — Postgres needs the matching
+  `GRANT` to `anon`/`authenticated` first. Both live together in
+  `supabase/schema.sql`; if a new table is added, it needs both.
+- **PostgREST embed ambiguity**: `reactions` has FKs to *both* `posts` and
+  `profiles`, so a naive `posts.select('*, profiles(...)')` fails with "more than
+  one relationship was found" (PostgREST also sees `posts → reactions → profiles`
+  as a candidate path). Nested embeds must name the exact FK constraint, e.g.
+  `profiles!posts_author_id_fkey`.
+- **Persistent community guardrails**: no `update`/`delete` RLS policy on
+  posts/comments/reactions in v0 — removal happens via the Supabase dashboard
+  (service role bypasses RLS), which is the entire v0 "admin" story. `reports` has
+  no `select` policy for the same reason. Rate limits (5 posts/10min, 20
+  comments/10min per user) are a Postgres `before insert` trigger, not an external
+  service. Editor-authored prompts are nullable-`author_id` seed rows with a
+  display-name override, not real auth users. Separate team rooms, DMs, media
+  uploads, followers, and a custom moderation UI are deferred.
+- **`data/mock-community.ts` demoted**: dev fixture only now, not imported by the
+  live route — its content became the SQL seed data in `supabase/schema.sql`
+  instead, per the existing "live routes never import mocks" rule.
 - **Race Story archive v0**: completed races can be selected from a horizontal
   archive or previous/next controls. The shareable `?story={round}` URL defaults to
   the latest completed race, and only that race is enriched server-side with cached
@@ -167,5 +191,9 @@ Small commits, one per meaningful chunk of work.
 - No `src/` directory — top-level `app/`, `components/`, `lib/`, `data/`, `types/`.
 - shadcn/ui `Sheet` component used for the race detail side panel (Base UI
   Dialog under the hood — focus trap, ESC-to-close — comes for free).
+- **Next.js 16 rename**: `middleware.ts` is deprecated in favor of `proxy.ts`
+  (function renamed `middleware` → `proxy` too). Confirmed against
+  `node_modules/next/dist/docs/.../proxy.md`, not assumed — this repo's build
+  warns loudly if the old name is used.
 
 @AGENTS.md

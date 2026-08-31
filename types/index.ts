@@ -88,6 +88,8 @@ export type CommunityPost = {
   body: string;
   createdAtLabel: string;
   reactions: Record<CommunityReaction, number>;
+  /** The signed-in viewer's own reaction, if any. Server-computed. */
+  myReaction?: CommunityReaction;
   comments: CommunityComment[];
 };
 

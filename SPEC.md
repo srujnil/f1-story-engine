@@ -103,32 +103,39 @@ type QuickStory = {
 All mock data is clearly fictional (not real 2026 results/dates) and labeled as such
 in-file, per the "no invented facts presented as real" rule.
 
-## Community Paddock v0
+## Community Paddock v1 (persistent)
 
-The first community vertical slice lives at `/community` and validates the social
-interaction model before authentication and persistence are added:
+`/community` graduated from a client-only prototype to real, persisted content
+backed by Supabase Auth + Postgres:
 
 - One shared paddock rather than separate empty team rooms.
 - Favourite-team filters and team-colour identity.
-- Admin/editor prompts plus clearly labelled member hot takes and race chat.
-- Client-local reactions and comments, visibly labelled as a non-persistent demo.
-- Homepage teaser and primary-navigation entry.
-- Mock accounts and discussions are fictional and labelled in-file; fan opinions are
-  never presented as verified news.
-
-Decisions for the persistent slice:
-
-- Real posting requires sign-in; no anonymous posting.
-- Supabase Auth and Postgres are the planned free-tier backend.
-- News posts are initially editor-created and must include a source. Community posts
-  are labelled as discussion or hot takes.
-- Row Level Security, reporting, rate limits, and admin removal are required before
-  persistent user-generated content launches.
-- DMs, media uploads, followers, and complex profiles remain deferred.
+- Reading is open to everyone; reacting/commenting requires sign-in.
+- Auth is magic-link email only (`supabase.auth.signInWithOtp`) — no password, no
+  OAuth app registered yet. Signing in auto-creates the account and a `profiles`
+  row via a Postgres trigger on `auth.users`.
+- Schema, RLS policies, rate-limit triggers, and the required GRANTs (this project
+  has "Automatically expose new tables" off, so RLS alone isn't enough — see
+  `supabase/schema.sql`'s comments) all live in `supabase/schema.sql`, run by hand
+  in the SQL Editor — no migrations tooling yet.
+- Public `select` on every table; `insert` gated to the signed-in user's own rows;
+  no `update`/`delete` policies on posts/comments/reactions — removal happens via
+  the Supabase dashboard for now, which is the entire v0 "admin" story.
+- Rate limits: 5 posts / 10 min and 20 comments / 10 min per user, enforced by a
+  Postgres trigger, not an external service.
+- `reports` table has no `select` policy at all — reports are only visible via the
+  dashboard (service role bypasses RLS).
+- Editor-authored discussion prompts ("Story Engine Desk") are nullable-`author_id`
+  seed rows with a display-name override, not tied to a real auth user — matches
+  "News posts are initially editor-created."
+- The former mock accounts/discussions in `data/mock-community.ts` are dev
+  fixtures only now; the live route never imports them (their content became the
+  SQL seed data instead).
+- DMs, media uploads, followers, complex profiles, and a custom moderation UI
+  remain deferred.
 
 ## Explicit Non-Goals for the original results MVP
 
-- No user accounts or auth in Community Paddock v0; planned for the persistent slice
 - No live/current race data or polling
 - No infographic image generation or video export (planned for a later slice — data
   model above is kept clean so it _can_ feed an export pipeline later, but no

@@ -1,5 +1,6 @@
-// COMMUNITY PROTOTYPE DATA ONLY.
-// These fictional accounts and discussions are not real users or news reports.
+// DEV FIXTURE ONLY — not imported by the live /community route.
+// Real content now lives in Supabase (seeded via supabase/schema.sql); these
+// fictional accounts and discussions are kept here for reference/dev use only.
 
 import type { CommunityPost } from "@/types";
 

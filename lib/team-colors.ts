@@ -17,3 +17,15 @@ const TEAM_COLORS: Record<string, string> = {
 export function teamColor(team: string): string {
   return TEAM_COLORS[team] ?? "#a78bfa";
 }
+
+// Curated subset offered as favourite-team choices in Community — the full
+// TEAM_COLORS map has historical/alternate names we don't want as picker
+// options.
+export const COMMUNITY_TEAMS = [
+  "Mercedes",
+  "Ferrari",
+  "McLaren",
+  "Red Bull",
+  "Williams",
+  "Aston Martin",
+] as const;

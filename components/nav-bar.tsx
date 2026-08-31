@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 
 const links = [
   { href: "/", label: "Storyline Hub", shortLabel: "Hub" },
@@ -9,7 +10,12 @@ const links = [
   { href: "/car-explorer", label: "Car Explorer", shortLabel: "Car" },
 ];
 
-export function NavBar() {
+export async function NavBar() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <header className="sticky top-0 z-40 border-b border-black/10 border-t-2 border-t-electric bg-white/95 text-foreground shadow-sm backdrop-blur">
       <nav
@@ -35,6 +41,26 @@ export function NavBar() {
             <span className="hidden sm:inline">{link.label}</span>
           </Link>
         ))}
+        {user ? (
+          <form action="/auth/sign-out" method="post" className="ml-1 shrink-0">
+            <button
+              type="submit"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Sign out
+            </button>
+          </form>
+        ) : (
+          <Link
+            href="/auth/sign-in"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "ml-1 shrink-0",
+            )}
+          >
+            Sign in
+          </Link>
+        )}
       </nav>
     </header>
   );
