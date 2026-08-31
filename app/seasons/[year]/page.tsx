@@ -53,7 +53,10 @@ export default async function SeasonPage({
         return null;
       });
     }
-  } catch {
+  } catch (error: unknown) {
+    // Same fix as app/page.tsx — log before falling back so the real cause is
+    // visible in Vercel's runtime logs instead of a silent, traceless 200.
+    console.error(`Jolpica fetch failed for ${numericYear}`, error);
     races = null;
   }
 

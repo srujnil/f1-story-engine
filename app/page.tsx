@@ -19,7 +19,10 @@ export default async function StorylineHubPage() {
 
   try {
     seasonData = await getSeasonData(FEATURED_SEASON);
-  } catch {
+  } catch (error: unknown) {
+    // Was silently swallowed before — logging so Vercel's runtime logs actually
+    // show *why* Jolpica failed instead of just a clean 200 with no trace.
+    console.error(`Jolpica fetch failed for ${FEATURED_SEASON}`, error);
     return (
       <div className="min-h-screen bg-background text-foreground">
         <NavBar />
