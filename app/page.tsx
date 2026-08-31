@@ -1,153 +1,158 @@
-import { DataUnavailable } from "@/components/data-unavailable";
 import Link from "next/link";
-import { DriverFormChartLazy } from "@/components/driver-form-chart-lazy";
-import { LiveStatGrid } from "@/components/live-stat-grid";
+import type { Metadata } from "next";
 import { NavBar } from "@/components/nav-bar";
-import { QuickStoryCard } from "@/components/quick-story-card";
-import { StandingsPanel } from "@/components/standings-panel";
-import { StartingLights } from "@/components/starting-lights";
-import { getSeasonData } from "@/lib/jolpica";
-import { computeMomentum } from "@/lib/momentum";
-import { buildResultStories } from "@/lib/result-stories";
+import { HeroCanvas } from "@/components/welcome/hero-canvas";
+import { ScrollReveal } from "@/components/welcome/scroll-reveal";
 
-const FEATURED_SEASON = 2026;
+export const metadata: Metadata = {
+  title: "F1 Story Engine — Welcome",
+  description:
+    "Welcome to the world of F1 and community — where stats meet conversation.",
+};
 
-export const dynamic = "force-dynamic";
-
-export default async function StorylineHubPage() {
-  let seasonData;
-
-  try {
-    seasonData = await getSeasonData(FEATURED_SEASON);
-  } catch (error: unknown) {
-    // Was silently swallowed before — logging so Vercel's runtime logs actually
-    // show *why* Jolpica failed instead of just a clean 200 with no trace.
-    console.error(`Jolpica fetch failed for ${FEATURED_SEASON}`, error);
-    return (
-      <div className="min-h-screen bg-background text-foreground">
-        <NavBar />
-        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <DataUnavailable />
-        </main>
-      </div>
-    );
-  }
-
-  const momentum = computeMomentum(seasonData.driverForm);
-  const stories = buildResultStories(seasonData.races);
-  const completedRaces = seasonData.races.filter(
-    (race) => race.status === "completed",
-  );
-  const progress = Math.round(
-    (completedRaces.length / seasonData.races.length) * 100,
-  );
-  const formRounds = completedRaces.slice(-6).map((race) => `R${race.round}`);
-
+export default function WelcomePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-[#07080b] text-white">
       <NavBar />
-      <main className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <section className="grid items-end gap-8 border-b border-black/10 pb-9 lg:grid-cols-[1fr_20rem]">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-electric/30 bg-electric/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-[#1479ad]">
-              <span className="size-2 animate-pulse rounded-full bg-electric motion-reduce:animate-none" />
-              Live season intelligence
-            </div>
-            <h1 className="max-w-4xl font-heading text-5xl font-black leading-[0.96] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
-              The season has a <span className="text-primary">pulse.</span>
-            </h1>
-            <p className="mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
-              Follow the drivers gaining ground, the title pressure building,
-              and the results shaping 2026.
-            </p>
-          </div>
-          <div className="grid gap-3">
-            <StartingLights />
-            <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
-              <div className="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                <span>Season progress</span>
-                <span>
-                  {completedRaces.length} / {seasonData.races.length} rounds
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-black/10">
-                <div
-                  className="h-full rounded-full bg-primary transition-[width] duration-700"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <LiveStatGrid seasonData={seasonData} momentum={momentum} />
-
-        <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(18rem,.85fr)]">
-          <DriverFormChartLazy
-            drivers={seasonData.driverForm}
-            rounds={formRounds}
-          />
-          <StandingsPanel
-            standings={seasonData.standings}
-            teamStandings={seasonData.teamStandings}
-          />
+      {/* Hero */}
+      <section className="relative flex min-h-[calc(100svh-57px)] items-center justify-center overflow-hidden">
+        <HeroCanvas />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-[#07080b]/40 via-[#07080b]/10 to-[#07080b]"
+        />
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-white/50">
+            F1 Story Engine
+          </p>
+          <h1 className="font-heading text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+            Welcome to the world of F1
+            <br />
+            <span className="text-primary">— and community.</span>
+          </h1>
         </div>
-
-        <section
-          aria-labelledby="stories-heading"
-          className="flex flex-col gap-5 rounded-[2rem] border border-electric/20 bg-white p-5 text-[#24242d] shadow-sm sm:p-8"
+        <div
+          aria-hidden="true"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/40 motion-reduce:animate-none"
         >
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                Race feed
-              </p>
-              <h2
-                id="stories-heading"
-                className="font-heading text-3xl font-extrabold tracking-tight sm:text-4xl"
-              >
-                Latest results, quickly
-              </h2>
-            </div>
-            <span className="hidden text-sm font-medium text-black/50 sm:block">
-              Built from live race data
-            </span>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {stories.map((story, index) => (
-              <QuickStoryCard
-                key={story.id}
-                story={story}
-                accentIndex={index}
-              />
-            ))}
-          </div>
-        </section>
+          <svg
+            width="20"
+            height="28"
+            viewBox="0 0 20 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="1"
+              y="1"
+              width="18"
+              height="26"
+              rx="9"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <circle cx="10" cy="8" r="2" fill="currentColor" />
+          </svg>
+        </div>
+      </section>
 
-        <section className="grid items-center gap-6 rounded-[2rem] border border-primary/20 bg-[#fff1f4] p-6 sm:p-8 lg:grid-cols-[1fr_auto]">
-          <div>
-            <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-primary">
-              Community paddock
+      {/* Scroll story */}
+      <section className="relative overflow-hidden bg-[#0c0d11]">
+        {/* .motorsport-pattern's strokes are near-black, tuned for the light
+            car-explorer page — inverted here, and isolated to its own layer
+            so the filter doesn't also invert the text below. */}
+        <div
+          aria-hidden="true"
+          className="motorsport-pattern absolute inset-0 invert"
+        />
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col gap-40 px-6 py-40">
+          <ScrollReveal className="text-center">
+            <p className="font-heading text-3xl font-black leading-tight tracking-tight sm:text-5xl">
+              Where F1 stats meet{" "}
+              <span className="text-electric">conversations.</span>
             </p>
-            <h2 className="font-heading text-3xl font-black tracking-tight">
-              The numbers start the argument.
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-black/60 sm:text-base">
-              React to hot takes, filter discussion by favourite team, and join
-              a race conversation in the new community prototype.
+          </ScrollReveal>
+
+          <ScrollReveal className="text-center">
+            <p className="font-heading text-3xl font-black leading-tight tracking-tight sm:text-5xl">
+              Highlights from the actual{" "}
+              <span className="text-amber">turning points</span> of the
+              race — and the discussion that follows.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Credit */}
+      <section className="border-t border-white/10 bg-[#07080b] py-16 text-center">
+        <ScrollReveal>
+          <p className="font-heading text-lg font-bold tracking-tight text-white/70">
+            by Srujnil
+          </p>
+        </ScrollReveal>
+      </section>
+
+      {/* Dedication */}
+      <section className="bg-[#07080b] px-6 pb-28">
+        <ScrollReveal className="mx-auto max-w-xl">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center sm:p-10">
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-primary">
+              A special acknowledgment
+            </p>
+            <p className="text-base leading-relaxed text-white/70 sm:text-lg">
+              This is for the fans who love this sport for the pure drive
+              and the nitty-gritty of it, not the glamour — the ones who
+              pull other people in simply because of how much they care
+              about the technical side of it.
+            </p>
+            <p className="mt-6 font-heading text-lg font-bold text-white">
+              Thanks, Parth 🙂
             </p>
           </div>
+        </ScrollReveal>
+
+        <div className="mt-16 text-center">
           <Link
-            href="/community"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            href="/hub"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#07080b]"
           >
             Enter the paddock →
           </Link>
-        </section>
-        <p className="text-xs text-muted-foreground">
-          Race data from Jolpica F1 · refreshed hourly
-        </p>
-      </main>
+        </div>
+      </section>
+
+      {/* Required CC BY 4.0 attribution for the reused 3D model — see
+          app/car-explorer/page.tsx for the source of this credit. */}
+      <footer className="border-t border-white/10 py-4 text-center text-[9px] leading-relaxed text-white/30">
+        Model &amp; sources · Fan-made concept{" "}
+        <a
+          href="https://sketchfab.com/3d-models/2026-f1-car-evo-1-2208ef7bd3de4e25be25efa100f27501"
+          target="_blank"
+          rel="noreferrer"
+          className="font-semibold text-white/45 underline-offset-2 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+        >
+          2026 F1 Car EVO-1
+        </a>{" "}
+        by{" "}
+        <a
+          href="https://sketchfab.com/abuhossain844"
+          target="_blank"
+          rel="noreferrer"
+          className="font-semibold text-white/45 underline-offset-2 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+        >
+          Abu Saif
+        </a>{" "}
+        ·{" "}
+        <a
+          href="https://creativecommons.org/licenses/by/4.0/"
+          target="_blank"
+          rel="noreferrer"
+          className="font-semibold text-white/45 underline-offset-2 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+        >
+          CC BY 4.0
+        </a>
+      </footer>
     </div>
   );
 }

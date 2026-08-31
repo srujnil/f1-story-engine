@@ -210,5 +210,17 @@ Small commits, one per meaningful chunk of work.
 - **Reused-asset license discipline**: any page that reuses `f1-car.glb` needs
   its own copy of the CC BY 4.0 attribution footer — it's per-page, not
   automatic just because the asset is already licensed for Car Explorer.
+- **`/` is now Welcome, dashboard is `/hub`**: the site's actual front door is
+  the scroll-story page — anyone who gets the bare link lands there first.
+  Every internal `href="/"` was audited and updated when this moved.
+- **r3f rotation-pivot bug, fixed**: rotating a `<group>` spins it around its
+  *own local origin*, not around the mesh's visual center. `f1-car.glb`'s
+  local origin sits well past one end of the car (its local z-span is
+  [-5.24, -0.45] — nowhere near 0), so a naive `group.rotation.y` spin looked
+  like the car fishtailing around its nose instead of a clean turntable. Fix:
+  offset the inner `<primitive>` by `-MODEL_CENTER` so the model's true
+  center lands on the group's origin, then position the *group* wherever it
+  needs to sit in world space. Check this any time a model's local origin
+  isn't obviously at its geometric center.
 
 @AGENTS.md

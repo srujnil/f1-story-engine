@@ -250,8 +250,9 @@ fan-made “2026 F1 Car EVO-1” model by Abu Saif (CC BY 4.0):
 
 ## Welcome v1 (scroll-story landing page)
 
-`/welcome` is a personal introduction/manifesto page, separate from the live-data
-dashboard at `/` — linked first in primary nav:
+`/` is a personal introduction/manifesto page — the site's actual front door, so
+anyone who gets the link lands here first. The live-data dashboard (formerly `/`)
+moved to `/hub`; every internal link that used to point at `/` was updated:
 
 - Full-viewport dark hero: the same licensed `f1-car.glb` from Car Explorer,
   reused in a new dark/cinematic lighting setup (red + electric-blue rim lights,

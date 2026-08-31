@@ -7,9 +7,13 @@ import type { Group } from "three";
 
 const MODEL_PATH = "/models/f1-car.glb";
 // Same measured bounding box as app/car-explorer/car-scene.tsx — reusing the
-// known-good framing rather than an auto-fit helper.
+// known-good numbers rather than an auto-fit helper. Importantly, this is the
+// midpoint of the model's *local* bounding box (z spans roughly -5.24 to
+// -0.45 — nowhere near the model's own origin at 0), not a position to move
+// the model to.
 const MODEL_CENTER: [number, number, number] = [0, 0.13, -2.84];
-const CAMERA_POSITION: [number, number, number] = [6.5, 2.1, -2.84];
+const CAMERA_POSITION: [number, number, number] = [7, 2.4, -2.84];
+const CAR_SCALE = 2.2;
 
 useGLTF.preload(MODEL_PATH);
 
@@ -27,12 +31,24 @@ function RotatingCar() {
 
   useFrame((_, delta) => {
     if (reducedMotion.current || !group.current) return;
-    group.current.rotation.y += delta * 0.15;
+    // Slow, full turntable sweep — was 0.15 (~40s/revolution), now ~100s.
+    group.current.rotation.y += delta * 0.063;
   });
 
   return (
-    <group ref={group} position={MODEL_CENTER}>
-      <primitive object={scene} position={[0, 0, 0]} />
+    // The outer group sits at MODEL_CENTER in world space (same spot the
+    // camera below is framed around) and is what actually rotates — around
+    // its own local origin. The inner primitive is shifted by -MODEL_CENTER
+    // so the model's true geometric center lands exactly on that origin.
+    // Without this offset, rotation.y spins the model around its own local
+    // (0,0,0) instead — which sits well past one end of the car, not its
+    // middle — producing a fishtail-around-the-nose motion instead of a
+    // clean turntable spin. (This was the bug in the first version.)
+    <group ref={group} position={MODEL_CENTER} scale={CAR_SCALE}>
+      <primitive
+        object={scene}
+        position={[-MODEL_CENTER[0], -MODEL_CENTER[1], -MODEL_CENTER[2]]}
+      />
     </group>
   );
 }

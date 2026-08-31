@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 
 const links = [
-  { href: "/welcome", label: "Welcome", shortLabel: "Welcome" },
-  { href: "/", label: "Storyline Hub", shortLabel: "Hub" },
+  { href: "/", label: "Welcome", shortLabel: "Welcome" },
+  { href: "/hub", label: "Storyline Hub", shortLabel: "Hub" },
   { href: "/seasons/2026", label: "Season Timeline", shortLabel: "Season" },
   { href: "/community", label: "Community", shortLabel: "Talk" },
   { href: "/car-explorer", label: "Car Explorer", shortLabel: "Car" },
