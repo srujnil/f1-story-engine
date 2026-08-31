@@ -250,5 +250,24 @@ Small commits, one per meaningful chunk of work.
   distance/`CAR_SCALE` are sized to keep ~15-20% margin beyond that at every
   angle — verified by sampling screenshots across an actual rotation sweep
   (nose-on, three-quarter, broadside, rear), not just the resting pose.
+  Still clipped on one side on the live site after that fix — the real bug:
+  the camera had no explicit `lookAt`, relying on react-three-fiber's
+  implicit default aim (never verified, just assumed). A one-sided
+  clip is exactly the symptom of a camera aimed slightly off-target, not a
+  sizing problem. Fixed properly with a `CameraRig` component
+  (`hero-scene.tsx`) that explicitly `camera.lookAt(MODEL_CENTER)` and
+  computes distance dynamically from the actual canvas aspect ratio
+  (`useThree().size`, recomputed on resize) rather than a hand-tuned number
+  per breakpoint — removes the guesswork entirely instead of iterating on it
+  a third time.
+- **Scroll-reveal made more robust**: `threshold: 0.3` needed 30% of an
+  element visible before firing, which a fast scroll can blow past without
+  ever satisfying — permanently stuck at `opacity-0`. Verified the reveal
+  state itself was never the bug (once triggered it stays revealed; tested
+  scroll up/down/up, opacity stayed 1 throughout) — the trigger just
+  sometimes never fired at all. `scroll-reveal.tsx` now uses `threshold: 0`
+  with a `-10%` bottom `rootMargin` (fires almost immediately), plus a
+  mount-time `getBoundingClientRect()` fallback that reveals immediately if
+  the element is already on-screen when the observer attaches.
 
 @AGENTS.md
