@@ -84,7 +84,9 @@ type ConstructorStandingsResponse = {
 };
 
 function apiBaseUrl(): string {
-  return (process.env.F1_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
+  // Vercel can create an *empty-string* env var (not unset) when it auto-detects
+  // one from .env.example during import — `??` doesn't catch that, only `||` does.
+  return (process.env.F1_API_BASE_URL || DEFAULT_API_BASE_URL).replace(
     /\/$/,
     "",
   );

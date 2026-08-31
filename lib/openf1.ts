@@ -83,7 +83,9 @@ type OpenF1SessionResult = {
 };
 
 function apiBaseUrl(): string {
-  return (process.env.OPENF1_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
+  // Same footgun as lib/jolpica.ts — Vercel can set this to "" rather than
+  // leaving it unset, and `??` doesn't fall back on an empty string.
+  return (process.env.OPENF1_API_BASE_URL || DEFAULT_API_BASE_URL).replace(
     /\/$/,
     "",
   );
