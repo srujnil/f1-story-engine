@@ -1,22 +1,41 @@
 import { DataUnavailable } from "@/components/data-unavailable";
 import { NavBar } from "@/components/nav-bar";
+import { NewsList } from "@/components/updates/news-list";
 import { RaceControlList } from "@/components/updates/race-control-list";
 import { getSeasonData } from "@/lib/jolpica";
+import { getLatestNews } from "@/lib/news";
 import { getRecentRaceControlFeed } from "@/lib/race-control-feed";
 
 const FEATURED_SEASON = 2026;
 
 export const dynamic = "force-dynamic";
 
-export default async function UpdatesPage() {
-  let raceControlItems;
+async function loadRaceControl() {
   try {
     const { races } = await getSeasonData(FEATURED_SEASON);
-    raceControlItems = await getRecentRaceControlFeed(races);
+    return await getRecentRaceControlFeed(races);
   } catch (error: unknown) {
     console.error("Updates page: season/race-control fetch failed", error);
-    raceControlItems = null;
+    return null;
   }
+}
+
+async function loadNews() {
+  try {
+    return await getLatestNews();
+  } catch (error: unknown) {
+    console.error("Updates page: news fetch failed", error);
+    return null;
+  }
+}
+
+export default async function UpdatesPage() {
+  // Independent fetches, independent fallbacks — one section failing must
+  // never take the other down with it.
+  const [raceControlItems, newsItems] = await Promise.all([
+    loadRaceControl(),
+    loadNews(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -30,9 +49,27 @@ export default async function UpdatesPage() {
             What&apos;s happening
           </h1>
           <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-            Real Race Control facts from recent rounds — refreshed hourly.
+            Real Race Control facts and the latest headlines — refreshed
+            regularly.
           </p>
         </div>
+
+        <section aria-labelledby="news-heading">
+          <h2
+            id="news-heading"
+            className="mb-4 font-heading text-2xl font-black tracking-tight"
+          >
+            Latest news
+          </h2>
+          {newsItems ? (
+            <NewsList items={newsItems} />
+          ) : (
+            <DataUnavailable
+              title="News feed is temporarily unavailable"
+              message="Couldn't reach our news sources. Try refreshing in a few minutes."
+            />
+          )}
+        </section>
 
         <section aria-labelledby="race-control-heading">
           <h2

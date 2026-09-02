@@ -271,6 +271,23 @@ moved to `/hub`; every internal link that used to point at `/` was updated:
 - A closing CTA links back into `/` so the page doesn't dead-end for a first-
   time visitor.
 
+## Updates v1 (Race Control feed + RSS news)
+
+`/updates` answers "what's happening right now" with two independently-
+failing sections:
+
+- **Race Control** reuses `lib/openf1.ts`'s existing per-race pipeline (no
+  new OpenF1 calls) across the last 5 completed races instead of one
+  selected race — real penalties, flags, and safety cars, not invented ones.
+- **Latest news** aggregates RSS from PlanetF1 and Autosport (confirmed live,
+  valid RSS 2.0 feeds by fetching them directly, not assumed — RaceFans'
+  feed 403'd and was left out). Cards show headline + the publisher's own
+  short syndicated excerpt + source + a link to the original article —
+  never full article text, which would be reproducing someone else's
+  copyrighted writing rather than aggregating it.
+- Each section fetches and fails independently; one source being down never
+  takes the other section with it.
+
 ## Constraints
 
 - Everything free-tier friendly (Vercel free, Supabase free if/when a DB is needed,

@@ -131,3 +131,13 @@ export type RaceStory = {
   moments: RaceStoryMoment[];
   strategies: RaceStrategy[];
 };
+
+export type NewsItem = {
+  title: string;
+  link: string;
+  source: string;
+  /** ISO timestamp. */
+  publishedAt: string;
+  /** The publisher's own short syndicated excerpt — never full article text. */
+  excerpt: string | null;
+};

@@ -269,5 +269,22 @@ Small commits, one per meaningful chunk of work.
   with a `-10%` bottom `rootMargin` (fires almost immediately), plus a
   mount-time `getBoundingClientRect()` fallback that reveals immediately if
   the element is already on-screen when the observer attaches.
+- **`rss-parser` doesn't use `fetch`** — it uses Node's raw `http`/`https`
+  modules internally, so Next's `next: { revalidate }` Data Cache (which
+  only patches global `fetch`) doesn't apply to `parser.parseURL()`. Fixed
+  by fetching the XML ourselves via `fetch()` (caching + a custom
+  `User-Agent`) and handing the text to `parser.parseString()` instead —
+  see `lib/news.ts`. Check this same thing before caching any future
+  non-fetch-based library call the same way.
+- **News feeds verified live before adding**: PlanetF1 and Autosport RSS
+  URLs were fetched and inspected directly, not assumed from search results
+  or memory — confirmed valid RSS 2.0 with the expected item fields.
+  RaceFans' guessed feed URL 403'd and was left out rather than guessed at
+  further; `NEWS_FEEDS` in `lib/news.ts` takes an array, so adding a
+  confirmed-working source later is a one-line change.
+- **News cards never reproduce full article text** — headline + the
+  publisher's own short syndicated excerpt (`contentSnippet`) + source +
+  link to the original only. Full-text scraping would be reproducing
+  someone else's copyrighted writing, not aggregating news.
 
 @AGENTS.md
