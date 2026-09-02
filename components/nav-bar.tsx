@@ -9,6 +9,7 @@ const links = [
   { href: "/seasons/2026", label: "Season Timeline", shortLabel: "Season" },
   { href: "/community", label: "Community", shortLabel: "Talk" },
   { href: "/car-explorer", label: "Car Explorer", shortLabel: "Car" },
+  { href: "/updates", label: "Updates", shortLabel: "Updates" },
 ];
 
 export async function NavBar() {

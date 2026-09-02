@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { teamColor } from "@/lib/team-colors";
 import type { RaceStory, RaceStoryMomentType } from "@/types";
 
-const momentStyles: Record<
+export const momentStyles: Record<
   RaceStoryMomentType,
   { label: string; className: string; dotClassName: string }
 > = {
