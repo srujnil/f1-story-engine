@@ -12,8 +12,6 @@ import { buildResultStories } from "@/lib/result-stories";
 
 const FEATURED_SEASON = 2026;
 
-export const dynamic = "force-dynamic";
-
 export default async function StorylineHubPage() {
   let seasonData;
 
@@ -124,7 +122,7 @@ export default async function StorylineHubPage() {
           </div>
         </section>
 
-        <section className="grid items-center gap-6 rounded-[2rem] border border-primary/20 bg-[#fff1f4] p-6 sm:p-8 lg:grid-cols-[1fr_auto]">
+        <section className="grid items-center gap-6 rounded-[2rem] border border-primary/20 bg-[#fff1f4] p-6 sm:grid-cols-[1fr_auto] sm:p-8">
           <div>
             <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-primary">
               Community paddock
@@ -139,7 +137,7 @@ export default async function StorylineHubPage() {
           </div>
           <Link
             href="/community"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center justify-self-start rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             Enter the paddock →
           </Link>
