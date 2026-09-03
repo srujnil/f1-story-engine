@@ -12,6 +12,15 @@ import { buildResultStories } from "@/lib/result-stories";
 
 const FEATURED_SEASON = 2026;
 
+// NavBar reads cookies() (Supabase session) before this page's own data
+// fetches run, which puts those fetches "after a Request-time API." Under
+// the default fetchCache "auto" that forces them to skip the Data Cache
+// outright, ignoring their own `next: { revalidate }` options entirely.
+// "default-cache" restores that: it still honors whatever cache option a
+// fetch explicitly asks for, it just stops Next from forcing no-store on
+// them by default. (docs: fetchCache route segment config)
+export const fetchCache = "default-cache";
+
 export default async function StorylineHubPage() {
   let seasonData;
 

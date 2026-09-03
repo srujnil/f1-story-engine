@@ -6,6 +6,11 @@ import { getRaceStory, isOpenF1RateLimitError } from "@/lib/openf1";
 import { notFound } from "next/navigation";
 import type { RaceStory } from "@/types";
 
+// See app/hub/page.tsx for why this is needed: NavBar's cookies() read
+// otherwise forces every fetch below to skip the Data Cache regardless of
+// their own `next: { revalidate }`.
+export const fetchCache = "default-cache";
+
 export default async function SeasonPage({
   params,
   searchParams,

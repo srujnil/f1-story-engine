@@ -8,6 +8,11 @@ import { getRecentRaceControlFeed } from "@/lib/race-control-feed";
 
 const FEATURED_SEASON = 2026;
 
+// See app/hub/page.tsx for why this is needed: NavBar's cookies() read
+// otherwise forces every fetch below to skip the Data Cache regardless of
+// their own `next: { revalidate }`.
+export const fetchCache = "default-cache";
+
 async function loadRaceControl() {
   try {
     const { races } = await getSeasonData(FEATURED_SEASON);
