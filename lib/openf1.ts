@@ -1,5 +1,6 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import type {
   Race,
   RaceStory,
@@ -108,11 +109,20 @@ async function waitForRequestSlot(): Promise<void> {
   await turn;
 }
 
-async function fetchOpenF1<T>(path: string): Promise<T[]> {
+// The rate limiter below (waitForRequestSlot) only protects real network
+// calls to OpenF1 — it must never run on a cache hit, or every cached read
+// pays the same 360ms-per-call queueing cost as a live fetch. A page like
+// /updates fans out to ~35 fetchOpenF1 calls (5 races x 7 endpoints); at
+// 360ms/call that's 12s+ even when every one of them is already cached.
+// unstable_cache solves this precisely: on a hit, fetchOpenF1Raw never runs,
+// so waitForRequestSlot() never runs either. Plain `fetch()` + `next.revalidate`
+// can't give us that — Next's default fetchCache also stops honoring it for
+// fetches that run after a Request-time API (NavBar reads cookies() on every
+// page), which unstable_cache isn't subject to.
+async function fetchOpenF1Raw(path: string): Promise<unknown> {
   const request = () =>
     fetch(`${apiBaseUrl()}${path}`, {
       headers: { "User-Agent": USER_AGENT },
-      next: { revalidate: REVALIDATE_SECONDS },
     });
 
   await waitForRequestSlot();
@@ -127,7 +137,15 @@ async function fetchOpenF1<T>(path: string): Promise<T[]> {
     throw new OpenF1RequestError(response.status);
   }
 
-  const payload: unknown = await response.json();
+  return response.json();
+}
+
+const fetchOpenF1Cached = unstable_cache(fetchOpenF1Raw, ["openf1"], {
+  revalidate: REVALIDATE_SECONDS,
+});
+
+async function fetchOpenF1<T>(path: string): Promise<T[]> {
+  const payload = await fetchOpenF1Cached(path);
   if (!Array.isArray(payload)) {
     throw new Error("OpenF1 returned an unexpected payload");
   }
