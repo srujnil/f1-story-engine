@@ -164,6 +164,17 @@
   background-size: 260px 210px;
 }
 
+/* Hides the scrollbar on an intentionally-scrollable strip (e.g. the nav
+   row on narrow screens) so it reads as a tab strip, not a scroll pane. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .circuit-outline {
   fill: none;
   stroke: currentColor;

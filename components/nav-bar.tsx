@@ -30,19 +30,23 @@ export async function NavBar() {
           </span>
           Story Engine
         </span>
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "text-[#51515d] hover:bg-electric/10 hover:text-[#1479ad]",
-            )}
-          >
-            <span className="sm:hidden">{link.shortLabel}</span>
-            <span className="hidden sm:inline">{link.label}</span>
-          </Link>
-        ))}
+        {/* Own scroll region so an overflowing link row scrolls sideways
+            within itself instead of pushing the whole page horizontally. */}
+        <div className="no-scrollbar flex min-w-0 items-center gap-0.5 overflow-x-auto sm:gap-2">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "shrink-0 text-[#51515d] hover:bg-electric/10 hover:text-[#1479ad]",
+              )}
+            >
+              <span className="sm:hidden">{link.shortLabel}</span>
+              <span className="hidden sm:inline">{link.label}</span>
+            </Link>
+          ))}
+        </div>
         {user ? (
           <form action="/auth/sign-out" method="post" className="ml-1 shrink-0">
             <button
