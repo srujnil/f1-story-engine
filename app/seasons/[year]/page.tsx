@@ -6,8 +6,6 @@ import { getRaceStory, isOpenF1RateLimitError } from "@/lib/openf1";
 import { notFound } from "next/navigation";
 import type { RaceStory } from "@/types";
 
-export const dynamic = "force-dynamic";
-
 export default async function SeasonPage({
   params,
   searchParams,

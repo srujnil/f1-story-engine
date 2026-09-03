@@ -8,8 +8,6 @@ import { getRecentRaceControlFeed } from "@/lib/race-control-feed";
 
 const FEATURED_SEASON = 2026;
 
-export const dynamic = "force-dynamic";
-
 async function loadRaceControl() {
   try {
     const { races } = await getSeasonData(FEATURED_SEASON);

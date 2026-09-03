@@ -4,8 +4,6 @@ import { NavBar } from "@/components/nav-bar";
 import { getCommunityFeed } from "@/lib/community";
 import { createClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
-
 export default async function CommunityPage() {
   const supabase = await createClient();
   const {
