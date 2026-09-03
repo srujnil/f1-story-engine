@@ -286,5 +286,58 @@ Small commits, one per meaningful chunk of work.
   publisher's own short syndicated excerpt (`contentSnippet`) + source +
   link to the original only. Full-text scraping would be reproducing
   someone else's copyrighted writing, not aggregating news.
+- **`force-dynamic` was silently defeating every `next: { revalidate }`
+  fetch cache** on `/hub`, `/updates`, `/community`, `/seasons/[year]` —
+  it also sets `fetchCache = "force-no-store"` for the whole route,
+  overriding every per-fetch revalidate window in `lib/openf1.ts`,
+  `lib/jolpica.ts`, `lib/news.ts`. Measured on production before touching
+  anything: `/updates` ~12.8s, `/seasons/2026` ~2.7s, every single load.
+  Removed it — these routes still render dynamically anyway because
+  `NavBar` calls `supabase.auth.getUser()` (reads cookies) on every page.
+- **Removing `force-dynamic` alone didn't fix it** — production stayed at
+  the same ~13s/~3s after that deploy. Root cause #2: Next's default
+  `fetchCache: "auto"` only honors a fetch's own cache option when that
+  fetch runs *before* a Request-time API in the render — `NavBar`'s cookie
+  read happens first, so every data fetch on these pages was still being
+  forced to `no-store` regardless of `next.revalidate`. Fixed by adding
+  `export const fetchCache = "default-cache"` to `hub/page.tsx`,
+  `updates/page.tsx`, `seasons/[year]/page.tsx` — it still honors whatever
+  cache option a fetch explicitly asks for, it just stops Next silently
+  overriding it. (Source: Next's own bundled
+  `caching-without-cache-components.md` docs, not assumed.)
+- **`lib/openf1.ts`'s rate limiter was throttling cache hits too**: root
+  cause #3, and the dominant one for `/updates`. `fetchOpenF1` ran a global
+  `waitForRequestSlot()` (360ms min spacing, to respect OpenF1's real rate
+  limit) *unconditionally* before every call — including calls that were
+  already cached and never touched the network. `/updates` fans out to
+  ~35 `fetchOpenF1` calls (5 races × 7 endpoints via `getRaceStory`), so a
+  fully warm cache still cost 35 × 360ms ≈ 12.6s. Plain `fetch()` +
+  `next.revalidate` can't fix this on its own (no way to know it's a cache
+  hit before paying the queue delay); switched the raw fetch+rate-limit
+  logic to be wrapped in `unstable_cache` (keyed by path) instead — on a
+  cache hit, the wrapped function never runs at all, so the rate limiter
+  never runs either. `unstable_cache` also isn't subject to the
+  before/after-cookies() restriction above. Verified locally: cold ~1.6s
+  (down from ~12.6s), warm ~0.02s; confirmed live on production too
+  (first hit after deploy ~14s, then 2s → 0.8s → 0.7s as cache warms).
+- **Nav bar had no responsive collapse** — logo + all 6 links + sign-in in
+  one non-wrapping row overflowed past the viewport on any window narrower
+  than ~900px, pushing the *entire page* into horizontal scroll (confirmed
+  via `document.documentElement.scrollWidth` > `clientWidth`). Fixed by
+  giving just the link row its own `overflow-x-auto` container (logo and
+  sign-in/out stay `shrink-0` outside it, always visible) plus a
+  `.no-scrollbar` utility in `globals.css` so it reads as a tab strip, not
+  a visible scrollbar. Deliberately not a hamburger menu — contained
+  horizontal scroll was the agreed-on minimal fix for now.
+- **Grid CTA buttons need an explicit `justify-self`** — a `sm:`/`lg:
+  grid-cols-[1fr_auto]` pattern (used for text+button rows, e.g. the
+  Community Paddock CTA on `/hub`) falls back to a single grid column below
+  its breakpoint, and CSS grid's default `justify-items: stretch` stretches
+  an `inline-flex` `<Link>` to the full column width — a button that looks
+  broken, not just narrow. Always pair that pattern with
+  `justify-self-start` on the button. The Hub CTA had also drifted to a
+  `lg:` breakpoint while the identical pattern in
+  `car-explorer/airflow-lab.tsx` used `sm:` — match `sm:` unless there's a
+  reason not to.
 
 @AGENTS.md
