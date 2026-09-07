@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   ContactShadows,
   Environment,
@@ -95,6 +95,28 @@ function Hotspot({
   );
 }
 
+// The hotspot dots (drei's <Html>) billboard themselves by re-projecting
+// their 3D position onto the canvas every frame. That's normally reliable,
+// but when the *container* resizes — crossing the mobile/desktop
+// aspect-ratio breakpoint, a font/layout shift settling after first paint,
+// a phone's address bar collapsing — there can be a beat where the car
+// mesh has already re-rendered at the new size but the dots haven't been
+// nudged to recompute yet, so they briefly (sometimes not-so-briefly) sit
+// at their pre-resize screen position while the car underneath has moved.
+// Forcing an explicit extra render or two whenever `size` changes closes
+// that gap instead of hoping the default frameloop catches it in time.
+function ResyncOnResize() {
+  const { invalidate, size } = useThree();
+
+  useEffect(() => {
+    invalidate();
+    const id = requestAnimationFrame(() => invalidate());
+    return () => cancelAnimationFrame(id);
+  }, [size, invalidate]);
+
+  return null;
+}
+
 function CarSceneContent({
   activePartId,
   showcaseActive,
@@ -118,6 +140,8 @@ function CarSceneContent({
       <directionalLight position={[0, 3, -6]} intensity={0.85} />
 
       <Environment preset="studio" />
+
+      <ResyncOnResize />
 
       <Car />
 
