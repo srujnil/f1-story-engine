@@ -19,6 +19,7 @@ const CIRCUIT_ASSETS: Array<{
   { matches: ["spa-francorchamps", "spa francorchamps"], asset: "spa" },
   { matches: ["hungaroring"], asset: "hungaroring" },
   { matches: ["zandvoort"], asset: "zandvoort" },
+  { matches: ["monza", "autodromo nazionale monza"], asset: "monza" },
 ];
 
 const COUNTRY_CODES: Record<string, string> = {
@@ -36,6 +37,7 @@ const COUNTRY_CODES: Record<string, string> = {
   belgium: "BE",
   hungary: "HU",
   netherlands: "NL",
+  italy: "IT",
 };
 
 export function circuitAssetFor(
