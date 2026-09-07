@@ -11,13 +11,17 @@ export default async function CommunityPage() {
   } = await supabase.auth.getUser();
 
   let currentUserTeam: string | null = null;
+  let currentDisplayName: string | null = null;
+  let usernameSet = false;
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("favorite_team")
+      .select("favorite_team, display_name, username_set")
       .eq("id", user.id)
       .maybeSingle();
     currentUserTeam = profile?.favorite_team ?? null;
+    currentDisplayName = profile?.display_name ?? null;
+    usernameSet = profile?.username_set ?? false;
   }
 
   let posts;
@@ -59,6 +63,8 @@ export default async function CommunityPage() {
             initialPosts={posts}
             currentUserId={user?.id ?? null}
             currentUserTeam={currentUserTeam}
+            currentDisplayName={currentDisplayName}
+            usernameSet={usernameSet}
           />
         ) : (
           <DataUnavailable

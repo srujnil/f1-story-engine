@@ -206,19 +206,32 @@ function DiscussionCard({
   );
 }
 
+const USERNAME_MIN_LENGTH = 2;
+const USERNAME_MAX_LENGTH = 24;
+
 export function CommunityPaddock({
   initialPosts,
   currentUserId,
   currentUserTeam,
+  currentDisplayName,
+  usernameSet,
 }: {
   initialPosts: CommunityPost[];
   currentUserId: string | null;
   currentUserTeam: string | null;
+  currentDisplayName: string | null;
+  usernameSet: boolean;
 }) {
   const router = useRouter();
   const signedIn = currentUserId !== null;
   const [selectedTeam, setSelectedTeam] = useState("All paddock");
   const [busy, setBusy] = useState(false);
+  // Separate from `busy` (which guards post/comment/react mutations) since
+  // this drives its own inline form state, not the whole feed.
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [usernameDraft, setUsernameDraft] = useState(currentDisplayName ?? "");
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [savingUsername, setSavingUsername] = useState(false);
 
   const visiblePosts = useMemo(
     () =>
@@ -294,6 +307,32 @@ export function CommunityPaddock({
       .from("profiles")
       .update({ favorite_team: team })
       .eq("id", currentUserId);
+    router.refresh();
+  }
+
+  async function saveDisplayName(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!currentUserId) return;
+    const name = usernameDraft.trim();
+    if (name.length < USERNAME_MIN_LENGTH || name.length > USERNAME_MAX_LENGTH) {
+      setUsernameError(
+        `Username must be ${USERNAME_MIN_LENGTH}–${USERNAME_MAX_LENGTH} characters.`,
+      );
+      return;
+    }
+    setUsernameError(null);
+    setSavingUsername(true);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: name, username_set: true })
+      .eq("id", currentUserId);
+    setSavingUsername(false);
+    if (error) {
+      setUsernameError("Couldn't save that — try again.");
+      return;
+    }
+    setEditingUsername(false);
     router.refresh();
   }
 
@@ -374,7 +413,48 @@ export function CommunityPaddock({
       </section>
 
       <aside className="space-y-5" aria-label="Community highlights">
-        {signedIn && !currentUserTeam ? (
+        {signedIn && !usernameSet ? (
+          <Card className="border border-primary/20 bg-[#fff1f4] shadow-none">
+            <CardHeader>
+              <Sparkles aria-hidden="true" className="mb-2 size-5 text-primary" />
+              <CardTitle className="text-xl font-black">
+                Choose a username
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-3 text-sm leading-relaxed text-black/60">
+                This is public — pick a handle rather than your real name if
+                you&apos;d rather stay anonymous. You can change it anytime.
+              </p>
+              <form onSubmit={saveDisplayName} className="flex flex-col gap-2">
+                <label htmlFor="username-input" className="sr-only">
+                  Username
+                </label>
+                <input
+                  id="username-input"
+                  value={usernameDraft}
+                  onChange={(event) => setUsernameDraft(event.target.value)}
+                  maxLength={USERNAME_MAX_LENGTH}
+                  placeholder="e.g. Apex_Hunter"
+                  disabled={savingUsername}
+                  className="min-h-10 rounded-xl border border-black/10 bg-white px-3 text-sm outline-none placeholder:text-black/35 focus-visible:ring-2 focus-visible:ring-primary"
+                />
+                {usernameError && (
+                  <p className="text-xs font-semibold text-primary">
+                    {usernameError}
+                  </p>
+                )}
+                <Button
+                  type="submit"
+                  disabled={savingUsername}
+                  className="bg-primary text-white hover:bg-primary/90"
+                >
+                  Save username
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        ) : signedIn && !currentUserTeam ? (
           <Card className="border border-electric/25 bg-[#eef9ff] shadow-none">
             <CardHeader>
               <Sparkles aria-hidden="true" className="mb-2 size-5 text-[#1479ad]" />
@@ -412,10 +492,70 @@ export function CommunityPaddock({
             </CardHeader>
             <CardContent className="text-sm leading-relaxed text-black/60">
               {signedIn ? (
-                <>
-                  Backing <strong className="text-[#24242d]">{currentUserTeam}</strong>.
-                  React and comment freely — it&apos;s saved to your account.
-                </>
+                editingUsername ? (
+                  <form onSubmit={saveDisplayName} className="flex flex-col gap-2">
+                    <label htmlFor="username-edit-input" className="sr-only">
+                      Username
+                    </label>
+                    <input
+                      id="username-edit-input"
+                      value={usernameDraft}
+                      onChange={(event) => setUsernameDraft(event.target.value)}
+                      maxLength={USERNAME_MAX_LENGTH}
+                      disabled={savingUsername}
+                      autoFocus
+                      className="min-h-10 rounded-xl border border-black/10 bg-white px-3 text-sm outline-none placeholder:text-black/35 focus-visible:ring-2 focus-visible:ring-primary"
+                    />
+                    {usernameError && (
+                      <p className="text-xs font-semibold text-primary">
+                        {usernameError}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        disabled={savingUsername}
+                        size="sm"
+                        className="bg-primary text-white hover:bg-primary/90"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingUsername(false);
+                          setUsernameDraft(currentDisplayName ?? "");
+                          setUsernameError(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    Posting as{" "}
+                    <strong className="text-[#24242d]">
+                      {currentDisplayName}
+                    </strong>
+                    , backing{" "}
+                    <strong className="text-[#24242d]">{currentUserTeam}</strong>.
+                    React and comment freely — it&apos;s saved to your
+                    account.{" "}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUsernameDraft(currentDisplayName ?? "");
+                        setEditingUsername(true);
+                      }}
+                      className="font-bold text-primary underline-offset-4 hover:underline"
+                    >
+                      Change username →
+                    </button>
+                  </>
+                )
               ) : (
                 <>
                   Sign in to react, comment, and pick a favourite team.{" "}

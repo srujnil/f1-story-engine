@@ -14,6 +14,10 @@
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   display_name text not null,
+  -- Tracks whether the person has actually chosen this name themselves
+  -- (vs. still on the auto-generated placeholder). Drives the "choose a
+  -- username" prompt in the Community UI.
+  username_set boolean not null default false,
   favorite_team text,
   created_at timestamptz not null default now()
 );
@@ -28,7 +32,11 @@ create policy "users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
--- Auto-create a profile the moment someone signs up via magic link.
+-- Auto-create a profile the moment someone signs up via magic link. The
+-- default display_name is a random, non-identifying placeholder — never
+-- derived from the sign-in email — since this is a public community and
+-- nobody should be shown by their real handle before choosing one
+-- themselves (see username_set / the Community "choose a username" nudge).
 create function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -36,7 +44,7 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (id, display_name)
-  values (new.id, split_part(new.email, '@', 1));
+  values (new.id, 'Paddock #' || floor(random() * 9000 + 1000)::int);
   return new;
 end;
 $$;
