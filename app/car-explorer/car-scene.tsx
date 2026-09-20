@@ -4,18 +4,21 @@ import {
   Component,
   Suspense,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
 } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
+  Billboard,
   ContactShadows,
   Environment,
-  Html,
   OrbitControls,
+  PerspectiveCamera,
   useGLTF,
 } from "@react-three/drei";
+import { Vector3, type Group, type Mesh, type MeshBasicMaterial } from "three";
 
 import {
   Card,
@@ -53,66 +56,119 @@ function Car() {
   return <primitive object={scene} />;
 }
 
+const worldPos = new Vector3();
+
+// Hotspots live inside the WebGL scene (not as DOM overlays) so they are
+// drawn in the same pass, with the same camera, as the car — they can never
+// disagree with the model about where a part is, whatever the timing of a
+// resize, a font/layout shift or a slow first frame. (The earlier drei <Html>
+// overlay projected to DOM separately and drifted out of sync with the mesh.)
+// Scale is recomputed each frame so a dot stays a constant size in CSS pixels
+// regardless of camera distance or canvas size.
+const DOT_PX = 7;
+
 function Hotspot({
   position,
   selected,
-  label,
   accent,
   onSelect,
 }: {
   position: [number, number, number];
   selected: boolean;
-  label: string;
   accent: string;
   onSelect: () => void;
 }) {
+  const group = useRef<Group>(null);
+  const pulse = useRef<Mesh>(null);
+
+  useFrame(({ camera, size, clock }) => {
+    const g = group.current;
+    if (!g) return;
+    g.getWorldPosition(worldPos);
+    const distance = camera.position.distanceTo(worldPos);
+    const fov = "fov" in camera ? (camera.fov as number) : 40;
+    const unitsPerPx =
+      (2 * distance * Math.tan((fov * Math.PI) / 360)) / size.height;
+    g.scale.setScalar(unitsPerPx * DOT_PX * (selected ? 1.25 : 1));
+
+    const ring = pulse.current;
+    if (ring) {
+      const t = (clock.elapsedTime * 0.9) % 1;
+      ring.scale.setScalar(1 + t * 1.6);
+      (ring.material as MeshBasicMaterial).opacity = selected ? 0 : 0.55 * (1 - t);
+    }
+  });
+
   return (
-    <Html position={position} center distanceFactor={8} zIndexRange={[10, 0]}>
-      <button
-        type="button"
-        aria-pressed={selected}
-        aria-label={label}
-        onClick={onSelect}
-        className="group rounded-full p-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-      >
-        <span className="relative flex size-3.5">
-          {!selected && (
-            <span
-              className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 motion-reduce:animate-none"
-              style={{ backgroundColor: accent }}
-            />
-          )}
-          <span
-            className={cn(
-              "relative inline-flex size-3.5 rounded-full border-2 border-white transition-all duration-200 shadow-[0_1px_6px_rgba(0,0,0,0.35)]",
-              selected ? "scale-125" : "group-hover:scale-110",
-            )}
-            style={{ backgroundColor: selected ? "#d7192d" : accent }}
+    <group ref={group} position={position}>
+      <Billboard>
+        <mesh
+          renderOrder={20}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect();
+          }}
+          onPointerOver={(event) => {
+            event.stopPropagation();
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={() => {
+            document.body.style.cursor = "";
+          }}
+        >
+          {/* generous invisible hit area (~22px radius) for touch */}
+          <circleGeometry args={[3.2, 24]} />
+          <meshBasicMaterial transparent opacity={0} depthTest={false} depthWrite={false} />
+        </mesh>
+        <mesh ref={pulse} renderOrder={21}>
+          <circleGeometry args={[1, 32]} />
+          <meshBasicMaterial color={accent} transparent depthTest={false} depthWrite={false} toneMapped={false} />
+        </mesh>
+        <mesh renderOrder={22}>
+          <circleGeometry args={[1.38, 32]} />
+          <meshBasicMaterial color="#ffffff" depthTest={false} depthWrite={false} toneMapped={false} />
+        </mesh>
+        <mesh renderOrder={23}>
+          <circleGeometry args={[1, 32]} />
+          <meshBasicMaterial
+            color={selected ? "#d7192d" : accent}
+            depthTest={false}
+            depthWrite={false}
+            toneMapped={false}
           />
-        </span>
-      </button>
-    </Html>
+        </mesh>
+      </Billboard>
+    </group>
   );
 }
 
-// The hotspot dots (drei's <Html>) billboard themselves by re-projecting
-// their 3D position onto the canvas every frame. That's normally reliable,
-// but when the *container* resizes — crossing the mobile/desktop
-// aspect-ratio breakpoint, a font/layout shift settling after first paint,
-// a phone's address bar collapsing — there can be a beat where the car
-// mesh has already re-rendered at the new size but the dots haven't been
-// nudged to recompute yet, so they briefly (sometimes not-so-briefly) sit
-// at their pre-resize screen position while the car underneath has moved.
-// Forcing an explicit extra render or two whenever `size` changes closes
-// that gap instead of hoping the default frameloop catches it in time.
-function ResyncOnResize() {
-  const { invalidate, size } = useThree();
+// Frames the whole car for the actual canvas shape. A fixed camera distance
+// clips the car on narrower (phone / 4:3) canvases, and worst at the side-on
+// angle the auto-rotate passes through. Distance = enough for the car's
+// half-length (measured bbox z-span ~4.8) to fit the horizontal field of view
+// with a safety margin for perspective, recomputed when the canvas resizes.
+const CAR_HALF_LENGTH = 2.4;
+const FIT_MARGIN = 1.22;
+const BASE_DISTANCE = Math.hypot(
+  CAMERA_START[0] - MODEL_CENTER[0],
+  CAMERA_START[1] - MODEL_CENTER[1],
+  CAMERA_START[2] - MODEL_CENTER[2],
+);
 
-  useEffect(() => {
-    invalidate();
-    const id = requestAnimationFrame(() => invalidate());
-    return () => cancelAnimationFrame(id);
-  }, [size, invalidate]);
+function FitCamera() {
+  const { camera, size } = useThree();
+
+  useLayoutEffect(() => {
+    const fov = "fov" in camera ? (camera.fov as number) : 40;
+    const aspect = size.width / size.height;
+    const needed =
+      (CAR_HALF_LENGTH * FIT_MARGIN) /
+      (Math.tan((fov * Math.PI) / 360) * aspect);
+    const distance = Math.min(14, Math.max(BASE_DISTANCE, needed));
+    const target = new Vector3(...MODEL_CENTER);
+    const direction = camera.position.clone().sub(target).normalize();
+    camera.position.copy(target).addScaledVector(direction, distance);
+  }, [camera, size.width, size.height]);
 
   return null;
 }
@@ -130,6 +186,8 @@ function CarSceneContent({
 
   return (
     <>
+      <PerspectiveCamera makeDefault fov={40} position={CAMERA_START} />
+      <FitCamera />
       <color attach="background" args={["#ffffff"]} />
       <ambientLight intensity={0.75} />
       {/* Key light: front-upper-left */}
@@ -141,15 +199,12 @@ function CarSceneContent({
 
       <Environment preset="studio" />
 
-      <ResyncOnResize />
-
       <Car />
 
       {CAR_PARTS.map((part) => (
         <Hotspot
           key={part.id}
           position={part.hotspot}
-          label={part.label}
           accent={part.accent}
           selected={part.id === activePartId}
           onSelect={() => onSelect(part.id)}
@@ -262,7 +317,6 @@ export default function CarScene() {
             <Canvas
               aria-label="Interactive 3D model of a Formula 1 car"
               role="img"
-              camera={{ fov: 40, position: CAMERA_START }}
               dpr={[1, 2]}
             >
               <Suspense fallback={null}>
