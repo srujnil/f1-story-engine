@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useLayoutEffect, useRef } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, useGLTF } from "@react-three/drei";
+import { cloneCarModel } from "@/lib/clone-car-model";
 import {
   Group,
   PerspectiveCamera as ThreePerspectiveCamera,
@@ -83,6 +84,9 @@ function RotatingCar() {
   }, []);
 
   const { scene } = useGLTF(MODEL_PATH);
+  // Own clone: the offset below must not be written onto the shared cached
+  // scene the Car Explorer also uses (see lib/clone-car-model.ts).
+  const model = useMemo(() => cloneCarModel(scene), [scene]);
 
   useFrame((_, delta) => {
     if (reducedMotion.current || !group.current) return;
@@ -100,7 +104,7 @@ function RotatingCar() {
     // nose motion instead of a clean turntable spin.
     <group ref={group} position={MODEL_CENTER} scale={CAR_SCALE}>
       <primitive
-        object={scene}
+        object={model}
         position={[-MODEL_CENTER[0], -MODEL_CENTER[1], -MODEL_CENTER[2]]}
       />
     </group>

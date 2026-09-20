@@ -5,6 +5,7 @@ import {
   Suspense,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -28,6 +29,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
+import { cloneCarModel } from "@/lib/clone-car-model";
 
 import { CAR_PARTS } from "./car-parts";
 
@@ -53,7 +56,10 @@ function Car() {
   // named sub-assemblies), so hotspots below are positioned in 3D space rather
   // than tied to individual mesh names.
 
-  return <primitive object={scene} />;
+  // Own clone, never the shared cached scene — see lib/clone-car-model.ts.
+  const model = useMemo(() => cloneCarModel(scene), [scene]);
+
+  return <primitive object={model} />;
 }
 
 const worldPos = new Vector3();

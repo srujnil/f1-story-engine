@@ -10,6 +10,7 @@ import {
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Line, useGLTF } from "@react-three/drei";
+import { cloneCarModel } from "@/lib/clone-car-model";
 import {
   AdditiveBlending,
   CatmullRomCurve3,
@@ -112,7 +113,7 @@ function buildFlowPaths(): FlowPath[] {
 function TunnelCar() {
   const { scene } = useGLTF(MODEL_PATH);
   const clonedScene = useMemo(() => {
-    const clone = scene.clone(true);
+    const clone = cloneCarModel(scene);
     const tunnelMaterial = new MeshStandardMaterial({
       color: "#dce7ef",
       emissive: "#102b3d",
