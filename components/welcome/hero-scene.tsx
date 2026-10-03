@@ -90,8 +90,8 @@ function RotatingCar() {
 
   useFrame((_, delta) => {
     if (reducedMotion.current || !group.current) return;
-    // Slow, full turntable sweep — ~100s per revolution.
-    group.current.rotation.y += delta * 0.063;
+    // Full turntable sweep — ~83s per revolution (was ~100s; sped up 20%).
+    group.current.rotation.y += delta * 0.0756;
   });
 
   return (
