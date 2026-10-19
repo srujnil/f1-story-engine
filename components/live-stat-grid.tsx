@@ -96,7 +96,10 @@ export function LiveStatGrid({
               <span>
                 {longDate.format(new Date(nextRace.date))} · {nextRace.country}
               </span>
-              <NextRaceCountdown startTime={nextRace.startTime} />
+              <NextRaceCountdown
+                startTime={nextRace.startTime}
+                date={nextRace.date}
+              />
             </span>
           ) : (
             "All rounds complete"

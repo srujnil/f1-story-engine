@@ -109,7 +109,11 @@ export function RaceStoryArchive({
         >
           {completedRaces.map((race) => {
             const selected = race.round === selectedRound;
-            const circuitAsset = circuitAssetFor(race.circuit, race.country);
+            const circuitAsset = circuitAssetFor(
+              race.circuit,
+              race.country,
+              race.circuitId,
+            );
             return (
               <Link
                 key={race.round}
@@ -130,14 +134,14 @@ export function RaceStoryArchive({
                   <span className="text-[10px] font-black uppercase tracking-[0.16em] text-black/40">
                     R{race.round}
                   </span>
-                  {circuitAsset ? (
+                  {circuitAsset?.countryCode ? (
                     <span aria-hidden="true" className="text-2xl leading-none">
                       {countryFlag(circuitAsset.countryCode)}
                     </span>
                   ) : null}
                 </span>
 
-                {circuitAsset ? (
+                {circuitAsset?.asset ? (
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 500 500"

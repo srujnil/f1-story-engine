@@ -12,16 +12,35 @@ function timeRemaining(target: string): string {
   return `${days}d ${hours}h to lights out`;
 }
 
-export function NextRaceCountdown({ startTime }: { startTime: string | null }) {
+// Jolpica often has no start time for a round until the weekend is close.
+// Rather than showing "to be confirmed" for weeks, count down to the race
+// date (which is always known) until a real start time appears.
+function daysToRaceDay(date: string): string {
+  const days = Math.ceil(
+    (new Date(`${date}T00:00:00Z`).getTime() - Date.now()) / 86_400_000,
+  );
+  if (days > 1) return `${days} days to race day`;
+  if (days === 1) return "Race day is tomorrow";
+  return "Race weekend is live";
+}
+
+export function NextRaceCountdown({
+  startTime,
+  date,
+}: {
+  startTime: string | null;
+  date?: string;
+}) {
   const [label, setLabel] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!startTime) return;
-    const update = () => setLabel(timeRemaining(startTime));
+    if (!startTime && !date) return;
+    const update = () =>
+      setLabel(startTime ? timeRemaining(startTime) : daysToRaceDay(date!));
     update();
     const timer = window.setInterval(update, 60_000);
     return () => window.clearInterval(timer);
-  }, [startTime]);
+  }, [startTime, date]);
 
   return <span>{label ?? "Race time to be confirmed"}</span>;
 }

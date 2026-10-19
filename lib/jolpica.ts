@@ -39,6 +39,7 @@ type ApiRace = {
   date: string;
   time?: string;
   Circuit: {
+    circuitId: string;
     circuitName: string;
     Location: { country: string };
   };
@@ -253,6 +254,7 @@ function adaptRace(scheduleRace: ApiRace, resultRace?: ApiRace): Race {
     round: Number(scheduleRace.round),
     name: scheduleRace.raceName,
     circuit: scheduleRace.Circuit.circuitName,
+    circuitId: scheduleRace.Circuit.circuitId,
     country: scheduleRace.Circuit.Location.country,
     date: scheduleRace.date,
     startTime: scheduleRace.time

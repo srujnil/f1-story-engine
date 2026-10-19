@@ -340,4 +340,21 @@ Small commits, one per meaningful chunk of work.
   `car-explorer/airflow-lab.tsx` used `sm:` — match `sm:` unless there's a
   reason not to.
 
+- **Track outlines are automatic, not hand-registered.** Every new circuit
+  used to need an entry in `lib/circuit-assets.ts` (and a country code), so
+  races after the last one I'd added fell back to plain text. Jolpica's
+  `circuitId` (monza, marina_bay, americas...) is now carried on `Race` and
+  *is* the file name in `public/circuits/`; `scripts/generate-circuit-manifest.mjs`
+  (run by `predev`/`prebuild`) writes `lib/circuit-manifest.json` listing the
+  files that exist, and `circuitAssetFor` uses `circuitId` first, name matching
+  only as a fallback for data without one. Adding a circuit = drop
+  `<circuitId>.svg` into `public/circuits/` (same `id="track"` adaptation).
+  The outline and the flag now degrade independently — an outline with an
+  unknown country still shows, and a flag with no outline still shows.
+- **Next-race countdown falls back to the race date** when Jolpica has no
+  start time yet (it often doesn't until the weekend is near), instead of
+  saying "to be confirmed" for weeks. Which race is "next" was already
+  automatic: a race flips to completed when Jolpica has results for it,
+  refreshed at most hourly by the fetch cache.
+
 @AGENTS.md

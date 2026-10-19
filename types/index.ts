@@ -11,6 +11,8 @@ export type Race = {
   round: number;
   name: string;
   circuit: string;
+  /** Jolpica circuitId, e.g. "monza". Matches the file name in public/circuits. */
+  circuitId?: string;
   country: string;
   date: string; // ISO date, e.g. "2026-03-08"
   startTime: string | null; // ISO timestamp when Jolpica supplies a race time
