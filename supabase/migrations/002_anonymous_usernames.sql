@@ -2,8 +2,8 @@
 -- Run once in Supabase Studio: SQL Editor → New query → paste → Run.
 --
 -- Problem: handle_new_user() previously set a new profile's display_name to
--- the local part of the sign-in email (e.g. "srujnil" from
--- srujnil@gmail.com) — identifying, and public the instant someone signs
+-- the local part of the sign-in email (e.g. "jane" from
+-- jane@example.com) — identifying, and public the instant someone signs
 -- in, before they get any chance to change it. This migration stops that,
 -- resets every existing profile to an anonymous placeholder, and adds a
 -- flag the UI uses to prompt people to pick a real username.
