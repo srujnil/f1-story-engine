@@ -4,7 +4,8 @@ An interactive Formula 1 web app that connects **news → decisions → performa
 results**, so you can see _why_ a season is unfolding the way it is, not just who
 finished where.
 
-**Live site: [f1-story-engine.vercel.app](https://f1-story-engine.vercel.app)**
+[![Live site](https://img.shields.io/badge/live%20site-f1--story--engine.vercel.app-e10600?style=for-the-badge&logo=vercel&logoColor=white)](https://f1-story-engine.vercel.app)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](./LICENSE)
 
 ![Storyline Hub](docs/screenshots/hub.png)
 
